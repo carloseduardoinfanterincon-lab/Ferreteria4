@@ -344,7 +344,7 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (password === "admin123") {
+    if (password === "ferre0313") {
       onLogin("admin")
     } else {
       setError("Contraseña incorrecta")
