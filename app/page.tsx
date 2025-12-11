@@ -29,62 +29,32 @@ import { getArticulos, createArticulo, updateArticulo, deleteArticulo } from "./
 
 const AnimatedBackground = () => (
   <div className="fixed inset-0 overflow-hidden pointer-events-none">
-    {/* Primary gradient orb - top left */}
+    {/* Fondo base azul marino profundo (Industrial) */}
     <div
-      className="absolute top-[-25%] left-[-15%] w-[700px] h-[700px] rounded-full animate-pulse-glow"
+      className="absolute inset-0"
       style={{
-        background:
-          "radial-gradient(circle at center, rgba(99, 102, 241, 0.35) 0%, rgba(79, 70, 229, 0.2) 40%, transparent 70%)",
+        background: "linear-gradient(to bottom right, #0f172a 0%, #172554 100%)", // Slate-900 to Blue-950
+      }}
+    />
+    
+    {/* Un solo destello sutil amarillo en la esquina superior derecha */}
+    <div
+      className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full opacity-10"
+      style={{
+        background: "radial-gradient(circle, rgba(234, 179, 8, 1) 0%, transparent 70%)", // Yellow-500
         filter: "blur(80px)",
       }}
     />
-    {/* Secondary gradient orb - top right */}
+    
+    {/* Grid muy sutil y limpio */}
     <div
-      className="absolute top-[10%] right-[-20%] w-[600px] h-[600px] rounded-full animate-pulse-glow"
-      style={{
-        background:
-          "radial-gradient(circle at center, rgba(6, 182, 212, 0.25) 0%, rgba(34, 211, 238, 0.15) 40%, transparent 70%)",
-        filter: "blur(100px)",
-        animationDelay: "1s",
-      }}
-    />
-    {/* Tertiary gradient orb - bottom center */}
-    <div
-      className="absolute bottom-[-15%] left-[25%] w-[800px] h-[800px] rounded-full animate-pulse-glow"
-      style={{
-        background:
-          "radial-gradient(circle at center, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.12) 40%, transparent 70%)",
-        filter: "blur(120px)",
-        animationDelay: "2s",
-      }}
-    />
-    {/* Accent orb - bottom right */}
-    <div
-      className="absolute bottom-[20%] right-[5%] w-[400px] h-[400px] rounded-full animate-pulse-glow"
-      style={{
-        background:
-          "radial-gradient(circle at center, rgba(236, 72, 153, 0.15) 0%, rgba(219, 39, 119, 0.08) 40%, transparent 70%)",
-        filter: "blur(80px)",
-        animationDelay: "1.5s",
-      }}
-    />
-    {/* Grid overlay */}
-    <div
-      className="absolute inset-0 opacity-30"
+      className="absolute inset-0 opacity-10"
       style={{
         backgroundImage: `
-          linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+          linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)
         `,
-        backgroundSize: "60px 60px",
-      }}
-    />
-    {/* Noise texture overlay */}
-    <div
-      className="absolute inset-0 opacity-20"
-      style={{
-        backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")",
+        backgroundSize: "40px 40px",
       }}
     />
   </div>
@@ -95,42 +65,33 @@ const GlassCard = ({
   className = "",
   hover = false,
   glow = false,
-}: { children: React.ReactNode; className?: string; hover?: boolean; glow?: boolean }) => (
+  style,
+  ...props
+}: { children: React.ReactNode; className?: string; hover?: boolean; glow?: boolean; style?: React.CSSProperties } & React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={`
       relative overflow-hidden
-      rounded-[28px]
+      rounded-[20px]
       transition-all duration-500 ease-out
-      ${hover ? "hover:-translate-y-2 hover:scale-[1.01] cursor-pointer" : ""}
+      ${hover ? "hover:-translate-y-1 hover:scale-[1.005] cursor-pointer" : ""}
       ${glow ? "animate-glow" : ""}
       ${className}
     `}
     style={{
       background:
-        "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.08) 100%)",
-      backdropFilter: "blur(24px) saturate(180%)",
-      WebkitBackdropFilter: "blur(24px) saturate(180%)",
-      border: "1px solid rgba(255,255,255,0.12)",
+        "linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)",
+      backdropFilter: "blur(12px)",
+      WebkitBackdropFilter: "blur(12px)",
+      border: "1px solid rgba(255,255,255,0.08)",
       boxShadow: hover
-        ? "0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05) inset, 0 1px 0 rgba(255,255,255,0.1) inset"
-        : "0 8px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.05) inset, 0 1px 0 rgba(255,255,255,0.1) inset",
+        ? "0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(234, 179, 8, 0.3) inset"
+        : "0 4px 16px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05) inset",
+      ...style,
     }}
+    {...props}
   >
-    {/* Top highlight */}
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-    {/* Inner glow */}
-    <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none" />
-    {/* Content */}
+    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent" />
     <div className="relative z-10">{children}</div>
-    {/* Hover overlay */}
-    {hover && (
-      <div
-        className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{
-          background: "linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, transparent 50%)",
-        }}
-      />
-    )}
   </div>
 )
 
@@ -153,35 +114,35 @@ const GradientButton = ({
 }) => {
   const variants = {
     primary: {
-      bg: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #6366f1 100%)",
-      hover: "linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #818cf8 100%)",
-      shadow: "0 8px 32px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset",
-      hoverShadow: "0 12px 40px rgba(99, 102, 241, 0.5), 0 0 0 1px rgba(255,255,255,0.15) inset",
+      bg: "linear-gradient(135deg, #eab308 0%, #ca8a04 100%)",
+      hover: "linear-gradient(135deg, #facc15 0%, #eab308 100%)",
+      shadow: "0 4px 20px rgba(234, 179, 8, 0.3), 0 0 0 1px rgba(255,255,255,0.2) inset",
+      hoverShadow: "0 8px 30px rgba(234, 179, 8, 0.4), 0 0 0 1px rgba(255,255,255,0.3) inset",
     },
     secondary: {
-      bg: "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)",
-      hover: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)",
-      shadow: "0 4px 20px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1) inset",
-      hoverShadow: "0 8px 30px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.15) inset",
+      bg: "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)",
+      hover: "linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%)",
+      shadow: "0 4px 20px rgba(0,0,0,0.2), 0 0 0 1px rgba(59, 130, 246, 0.3) inset",
+      hoverShadow: "0 8px 30px rgba(0,0,0,0.3), 0 0 0 1px rgba(59, 130, 246, 0.4) inset",
     },
     danger: {
-      bg: "linear-gradient(135deg, #ef4444 0%, #f43f5e 50%, #ef4444 100%)",
-      hover: "linear-gradient(135deg, #f87171 0%, #fb7185 50%, #f87171 100%)",
-      shadow: "0 8px 32px rgba(239, 68, 68, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset",
-      hoverShadow: "0 12px 40px rgba(239, 68, 68, 0.5), 0 0 0 1px rgba(255,255,255,0.15) inset",
+      bg: "linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)",
+      hover: "linear-gradient(135deg, #f87171 0%, #ef4444 50%, #dc2626 100%)",
+      shadow: "0 8px 32px rgba(220, 38, 38, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset",
+      hoverShadow: "0 12px 40px rgba(220, 38, 38, 0.5), 0 0 0 1px rgba(255,255,255,0.15) inset",
     },
     success: {
-      bg: "linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #10b981 100%)",
-      hover: "linear-gradient(135deg, #34d399 0%, #2dd4bf 50%, #34d399 100%)",
+      bg: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)",
+      hover: "linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%)",
       shadow: "0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset",
       hoverShadow: "0 12px 40px rgba(16, 185, 129, 0.5), 0 0 0 1px rgba(255,255,255,0.15) inset",
     },
   }
 
   const sizes = {
-    sm: "px-4 py-2 text-sm rounded-xl",
-    default: "px-6 py-3.5 text-base rounded-2xl",
-    lg: "px-8 py-4 text-lg rounded-2xl",
+    sm: "px-4 py-2 text-sm rounded-lg",
+    default: "px-6 py-3.5 text-base rounded-xl",
+    lg: "px-8 py-4 text-lg rounded-xl",
   }
 
   const v = variants[variant]
@@ -193,18 +154,18 @@ const GradientButton = ({
       disabled={disabled}
       className={`
         relative overflow-hidden
-        text-white font-semibold
+        text-white font-bold tracking-wide
         ${sizes[size]}
         transition-all duration-400 ease-out
-        hover:scale-[1.03] active:scale-[0.98]
+        hover:scale-[1.02] active:scale-[0.98]
         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
         group
         ${className}
       `}
       style={{
         background: v.bg,
-        backgroundSize: "200% 100%",
         boxShadow: v.shadow,
+        textShadow: variant === 'primary' ? "0 1px 2px rgba(0,0,0,0.3)" : "none",
       }}
       onMouseEnter={(e) => {
         if (!disabled) {
@@ -218,13 +179,6 @@ const GradientButton = ({
       }}
     >
       <span className="relative z-10 flex items-center justify-center gap-2">{children}</span>
-      {/* Shimmer effect on hover */}
-      <div
-        className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"
-        style={{
-          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
-        }}
-      />
     </button>
   )
 }
@@ -235,7 +189,7 @@ const GlassInput = ({
 }: { icon?: React.ElementType } & React.InputHTMLAttributes<HTMLInputElement>) => (
   <div className="relative group">
     {Icon && (
-      <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-all duration-400 text-slate-400 group-focus-within:text-indigo-400">
+      <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-all duration-400 text-slate-400 group-focus-within:text-yellow-400">
         <Icon size={20} />
       </div>
     )}
@@ -243,31 +197,29 @@ const GlassInput = ({
       {...props}
       className={`
         w-full
-        rounded-2xl
+        rounded-xl
         ${Icon ? "pl-14" : "pl-5"} pr-5 py-4
-        text-white placeholder-slate-400
+        text-white placeholder-slate-500
         transition-all duration-400 ease-out
         focus:outline-none
         ${props.className || ""}
       `}
       style={{
-        background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
+        background: "rgba(15, 23, 42, 0.6)",
         border: "1px solid rgba(255,255,255,0.1)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05)",
+        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)",
       }}
       onFocus={(e) => {
-        e.target.style.border = "1px solid rgba(99, 102, 241, 0.5)"
+        e.target.style.border = "1px solid rgba(234, 179, 8, 0.6)"
         e.target.style.boxShadow =
-          "0 4px 30px rgba(99, 102, 241, 0.2), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 4px rgba(99, 102, 241, 0.1)"
-        e.target.style.background = "linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)"
+          "0 0 0 4px rgba(234, 179, 8, 0.1), inset 0 2px 4px rgba(0,0,0,0.2)"
+        e.target.style.background = "rgba(15, 23, 42, 0.8)"
         props.onFocus?.(e)
       }}
       onBlur={(e) => {
         e.target.style.border = "1px solid rgba(255,255,255,0.1)"
-        e.target.style.boxShadow = "0 4px 20px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.05)"
-        e.target.style.background = "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)"
+        e.target.style.boxShadow = "inset 0 2px 4px rgba(0,0,0,0.2)"
+        e.target.style.background = "rgba(15, 23, 42, 0.6)"
         props.onBlur?.(e)
       }}
     />
@@ -286,16 +238,16 @@ const ConfirmationModal = ({
   <div
     className="fixed inset-0 z-[110] flex items-center justify-center p-4"
     style={{
-      background: "rgba(0,0,0,0.6)",
-      backdropFilter: "blur(8px)",
+      background: "rgba(0,0,0,0.8)",
+      backdropFilter: "blur(4px)",
     }}
   >
     <GlassCard className="w-full max-w-sm p-8 animate-scale-in">
       <div className="flex items-center gap-4 mb-5">
         <div
-          className="p-3.5 rounded-2xl"
+          className="p-3.5 rounded-xl"
           style={{
-            background: "linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(244, 63, 94, 0.1) 100%)",
+            background: "linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.1) 100%)",
             border: "1px solid rgba(239, 68, 68, 0.2)",
           }}
         >
@@ -307,20 +259,16 @@ const ConfirmationModal = ({
       <div className="flex gap-4">
         <button
           onClick={onCancel}
-          className="flex-1 py-3.5 px-4 rounded-2xl text-slate-300 transition-all duration-400"
+          className="flex-1 py-3.5 px-4 rounded-xl text-slate-300 transition-all duration-400"
           style={{
-            background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
+            background: "rgba(255,255,255,0.05)",
             border: "1px solid rgba(255,255,255,0.1)",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background =
-              "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)"
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"
+             e.currentTarget.style.background = "rgba(255,255,255,0.1)"
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background =
-              "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)"
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
+             e.currentTarget.style.background = "rgba(255,255,255,0.05)"
           }}
         >
           Cancelar
@@ -355,7 +303,7 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
     <div
       className="min-h-screen flex items-center justify-center p-6 font-sans"
       style={{
-        background: "linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%)",
+        background: "#0f172a",
       }}
     >
       <AnimatedBackground />
@@ -369,125 +317,114 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
             <div className="text-center mb-10">
               <div className="relative inline-block mb-6">
                 <div
-                  className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto relative overflow-hidden animate-glow"
+                  className="w-24 h-24 rounded-2xl flex items-center justify-center mx-auto relative overflow-hidden"
                   style={{
-                    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #6366f1 100%)",
-                    boxShadow: "0 8px 40px rgba(99, 102, 241, 0.5)",
+                    background: "linear-gradient(135deg, #1e40af 0%, #172554 100%)",
+                    border: "2px solid #3b82f6",
+                    boxShadow: "0 0 30px rgba(59, 130, 246, 0.3)",
                   }}
                 >
-                  <Package size={40} className="text-white relative z-10" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+                  <Package size={48} className="text-yellow-400 relative z-10" />
                 </div>
                 <div
-                  className="absolute -top-1 -right-1 w-8 h-8 rounded-xl flex items-center justify-center animate-bounce"
+                  className="absolute -top-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center animate-bounce"
                   style={{
-                    background: "linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)",
-                    boxShadow: "0 4px 20px rgba(236, 72, 153, 0.5)",
+                    background: "#eab308",
+                    boxShadow: "0 4px 15px rgba(234, 179, 8, 0.4)",
                   }}
                 >
-                  <Sparkles size={16} className="text-white" />
+                  <Sparkles size={20} className="text-black" />
                 </div>
               </div>
               <h1
-                className="text-4xl font-bold mb-3 tracking-tight"
+                className="text-4xl font-extrabold mb-3 tracking-tight"
                 style={{
-                  background: "linear-gradient(135deg, #ffffff 0%, #c7d2fe 50%, #a5b4fc 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
+                  color: "white",
+                  textShadow: "0 2px 10px rgba(0,0,0,0.5)"
                 }}
               >
-                Inventario Pro
+                Inventario <span className="text-yellow-400">Pro</span>
               </h1>
-              <p className="text-slate-400 font-light text-lg">Gestión de hardware moderna</p>
+              <p className="text-slate-400 font-medium text-lg">Sistema de Ferretería</p>
             </div>
 
             {/* Access Options */}
             <div className="space-y-5">
-              <p className="text-sm text-slate-500 text-center mb-6 uppercase tracking-wider">
-                Seleccione su tipo de acceso
+              <p className="text-sm text-slate-500 text-center mb-6 uppercase tracking-wider font-bold">
+                Seleccione su acceso
               </p>
 
-              {/* Employee Button */}
+              {/* Asesor Button (Formerly Empleado) */}
               <button
                 onClick={() => onLogin("employee")}
-                className="w-full group relative flex items-center p-5 rounded-2xl transition-all duration-400"
+                className="w-full group relative flex items-center p-5 rounded-xl transition-all duration-400"
                 style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.1)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(34, 211, 238, 0.05) 100%)"
-                  e.currentTarget.style.borderColor = "rgba(6, 182, 212, 0.3)"
+                  e.currentTarget.style.background = "rgba(59, 130, 246, 0.1)"
+                  e.currentTarget.style.borderColor = "#3b82f6"
                   e.currentTarget.style.transform = "translateY(-2px)"
-                  e.currentTarget.style.boxShadow = "0 8px 30px rgba(6, 182, 212, 0.2)"
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)"
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"
+                  e.currentTarget.style.background = "rgba(255,255,255,0.03)"
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
                   e.currentTarget.style.transform = "translateY(0)"
-                  e.currentTarget.style.boxShadow = "none"
                 }}
               >
                 <div
-                  className="p-3.5 rounded-xl transition-all duration-400 group-hover:scale-110"
+                  className="p-3.5 rounded-lg transition-all duration-400 group-hover:scale-110"
                   style={{
-                    background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(34, 211, 238, 0.1) 100%)",
-                    border: "1px solid rgba(6, 182, 212, 0.2)",
+                    background: "rgba(59, 130, 246, 0.2)",
+                    border: "1px solid rgba(59, 130, 246, 0.3)",
                   }}
                 >
-                  <Users size={24} className="text-cyan-400" />
+                  <Users size={24} className="text-blue-400" />
                 </div>
                 <div className="ml-4 text-left flex-1">
-                  <h3 className="text-white font-semibold text-lg">Empleado</h3>
-                  <p className="text-sm text-slate-400">Solo consulta de precios</p>
+                  {/* Changed "Empleado" to "Asesor" */}
+                  <h3 className="text-white font-bold text-lg">Asesor</h3>
+                  <p className="text-sm text-slate-400">Consulta de precios y stock</p>
                 </div>
-                <div className="opacity-0 group-hover:opacity-100 transition-all duration-400 text-cyan-400 translate-x-[-8px] group-hover:translate-x-0">
+                <div className="opacity-0 group-hover:opacity-100 transition-all duration-400 text-yellow-400 translate-x-[-8px] group-hover:translate-x-0">
                   →
                 </div>
               </button>
 
               {/* Divider */}
               <div className="flex items-center gap-4 py-2">
-                <div
-                  className="flex-1 h-px"
-                  style={{ background: "linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent)" }}
-                />
-                <span className="text-xs text-slate-500 uppercase tracking-widest">o</span>
-                <div
-                  className="flex-1 h-px"
-                  style={{ background: "linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent)" }}
-                />
+                <div className="flex-1 h-px bg-slate-700" />
+                <span className="text-xs text-slate-500 uppercase font-bold">o</span>
+                <div className="flex-1 h-px bg-slate-700" />
               </div>
 
               {/* Admin Form */}
               <form onSubmit={handleAdminLogin} className="space-y-5">
                 <div
-                  className="flex items-center gap-4 mb-5 p-4 rounded-2xl"
+                  className="flex items-center gap-4 mb-5 p-4 rounded-xl"
                   style={{
-                    background: "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%)",
-                    border: "1px solid rgba(99, 102, 241, 0.15)",
+                    background: "rgba(234, 179, 8, 0.05)",
+                    border: "1px solid rgba(234, 179, 8, 0.2)",
                   }}
                 >
                   <div
-                    className="p-3 rounded-xl"
+                    className="p-3 rounded-lg"
                     style={{
-                      background: "linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(139, 92, 246, 0.2) 100%)",
+                      background: "rgba(234, 179, 8, 0.2)",
                     }}
                   >
-                    <Shield size={22} className="text-indigo-400" />
+                    <Shield size={22} className="text-yellow-400" />
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold">Administrador</h3>
-                    <p className="text-sm text-slate-400">Acceso total y edición</p>
+                    <h3 className="text-white font-bold">Administrador</h3>
+                    <p className="text-sm text-slate-400">Gestión total del inventario</p>
                   </div>
                 </div>
 
                 <GlassInput
                   type="password"
-                  placeholder="Ingrese su contraseña"
+                  placeholder="Contraseña de Admin"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value)
@@ -496,20 +433,14 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
                 />
 
                 {error && (
-                  <div
-                    className="flex items-center gap-3 text-red-400 text-sm px-4 py-3.5 rounded-xl animate-fade-up"
-                    style={{
-                      background: "linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(244, 63, 94, 0.08) 100%)",
-                      border: "1px solid rgba(239, 68, 68, 0.2)",
-                    }}
-                  >
+                  <div className="flex items-center gap-3 text-red-400 text-sm px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 animate-fade-up">
                     <AlertCircle size={18} />
                     {error}
                   </div>
                 )}
 
                 <GradientButton type="submit" className="w-full">
-                  Ingresar como Admin
+                  Ingresar al Sistema
                 </GradientButton>
               </form>
             </div>
@@ -519,15 +450,10 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
               className="mt-8 pt-6 flex justify-center gap-3 flex-wrap"
               style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
             >
-              {["Tiempo Real", "Seguro", "Rápido"].map((tag, i) => (
+              {["Control de Stock", "Caja", "Facturación"].map((tag, i) => (
                 <span
                   key={tag}
-                  className="px-4 py-2 rounded-full text-xs text-slate-400 transition-all duration-400 hover:text-slate-300"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    animationDelay: `${i * 100}ms`,
-                  }}
+                  className="px-4 py-1.5 rounded-full text-xs font-medium text-slate-400 border border-slate-700 bg-slate-800/50"
                 >
                   {tag}
                 </span>
@@ -562,23 +488,23 @@ const StatCard = ({
   title: string
   value: string | number
   icon: React.ElementType
-  gradient: { bg: string; border: string; iconBg: string }
+  gradient: { bg: string; border: string; iconBg: string; text: string }
   delay?: number
 }) => (
   <GlassCard hover className="p-6 animate-fade-up" style={{ animationDelay: `${delay}ms` }}>
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-slate-400 text-sm font-medium mb-1">{title}</p>
+        <p className="text-slate-400 text-sm font-bold uppercase tracking-wider mb-1">{title}</p>
         <p className="text-4xl font-bold text-white tracking-tight">{value}</p>
       </div>
       <div
-        className="p-4 rounded-2xl transition-transform duration-400 hover:scale-110"
+        className="p-4 rounded-xl transition-transform duration-400 hover:scale-110"
         style={{
           background: gradient.iconBg,
           border: `1px solid ${gradient.border}`,
         }}
       >
-        <Icon size={28} style={{ color: gradient.bg }} />
+        <Icon size={28} style={{ color: gradient.text }} />
       </div>
     </div>
   </GlassCard>
@@ -625,7 +551,17 @@ export default function HardwareApp() {
     try {
       const response = await getArticulos()
       if (response.success && response.data) {
-        setProducts(response.data)
+        const mappedProducts: Product[] = response.data.map((item) => ({
+          id: item.id,
+          name: item.name,
+          cost: item.cost,
+          price: item.price,
+          category: "",
+          stock: 0,
+          supplier: "",
+          lastUpdate: item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "",
+        }))
+        setProducts(mappedProducts)
       } else {
         setError(response.error || "Error al cargar productos")
       }
@@ -650,7 +586,6 @@ export default function HardwareApp() {
   const handleAddProduct = async (e?: React.FormEvent) => {
     e?.preventDefault()
     if (newProduct.name && newProduct.cost >= 0 && newProduct.price >= 0) {
-      // Allow 0 for cost/price
       setIsLoading(true)
       setError(null)
       try {
@@ -658,14 +593,20 @@ export default function HardwareApp() {
           name: newProduct.name,
           cost: newProduct.cost,
           price: newProduct.price,
-          category: newProduct.category,
-          stock: newProduct.stock,
-          supplier: newProduct.supplier,
-          lastUpdate: newProduct.lastUpdate,
         })
 
         if (response.success && response.data) {
-          setProducts((prev) => [...prev, response.data!])
+          const newProd: Product = {
+            id: response.data.id,
+            name: response.data.name,
+            cost: response.data.cost,
+            price: response.data.price,
+            category: newProduct.category,
+            stock: newProduct.stock,
+            supplier: newProduct.supplier,
+            lastUpdate: new Date().toLocaleDateString(),
+          }
+          setProducts((prev) => [...prev, newProd])
           setNewProduct({ name: "", cost: 0, price: 0, category: "", stock: 0, supplier: "", lastUpdate: "" })
           setIsModalOpen(false)
         } else {
@@ -694,10 +635,6 @@ export default function HardwareApp() {
           name: editingProduct.name,
           cost: editingProduct.cost,
           price: editingProduct.price,
-          category: editingProduct.category,
-          stock: editingProduct.stock,
-          supplier: editingProduct.supplier,
-          lastUpdate: editingProduct.lastUpdate,
         })
 
         if (response.success) {
@@ -739,57 +676,28 @@ export default function HardwareApp() {
     }
   }
 
-  const downloadTemplate = () => {
-    const headers = ["NOMBRE DEL PRODUCTO", "COSTO", "PRECIO DE VENTA"]
-    const exampleData = [
-      { "NOMBRE DEL PRODUCTO": "Ejemplo Producto 1", COSTO: 1000, "PRECIO DE VENTA": 1500 },
-      { "NOMBRE DEL PRODUCTO": "Ejemplo Producto 2", COSTO: 2000, "PRECIO DE VENTA": 3000 },
-    ]
-
-    const worksheet = XLSX.utils.json_to_sheet(exampleData)
-    const workbook = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Plantilla")
-
-    worksheet["!cols"] = [{ wch: 40 }, { wch: 15 }, { wch: 20 }]
-
-    XLSX.writeFile(workbook, "Plantilla_Inventario.xlsx")
-  }
-
   const handleExportData = () => {
     if (products.length === 0) {
       alert("No hay productos para exportar")
       return
     }
 
-    // Create worksheet data with headers
-    const headers = ["ID", "Nombre", "Categoría", "Stock", "Precio", "Proveedor", "Última Actualización"]
     const data = products.map((product) => ({
-      ID: product.id,
       Nombre: product.name,
-      Categoría: product.category || "Sin categoría",
-      Stock: product.stock,
-      Precio: product.price,
-      Proveedor: product.supplier || "Sin proveedor",
-      "Última Actualización": product.lastUpdate || "Sin fecha",
+      "Costo del Producto": product.cost,
+      "Precio de Venta": product.price,
     }))
 
-    // Create workbook and worksheet
     const worksheet = XLSX.utils.json_to_sheet(data)
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, "Inventario")
 
-    // Set column widths for better readability
     worksheet["!cols"] = [
-      { wch: 25 }, // ID
-      { wch: 30 }, // Nombre
-      { wch: 20 }, // Categoría
-      { wch: 10 }, // Stock
-      { wch: 15 }, // Precio
-      { wch: 25 }, // Proveedor
-      { wch: 20 }, // Última Actualización
+      { wch: 40 }, 
+      { wch: 20 }, 
+      { wch: 20 }, 
     ]
 
-    // Generate Excel file and trigger download
     XLSX.writeFile(workbook, `Inventario_Ferreteria_${new Date().toISOString().split("T")[0]}.xlsx`)
   }
 
@@ -817,17 +725,10 @@ export default function HardwareApp() {
           return
         }
 
-        // Detect delimiter (semicolon or comma)
         const firstLine = lines[0]
         const delimiter = firstLine.includes(";") ? ";" : ","
-
-        // Parse headers
         const headers = firstLine.split(delimiter).map((h) => h.trim().replace(/^["']|["']$/g, ""))
 
-        console.log("[v0] Detected headers:", headers)
-        console.log("[v0] Using delimiter:", delimiter)
-
-        // Parse rows
         for (let i = 1; i < lines.length; i++) {
           const values = lines[i].split(delimiter).map((v) => v.trim().replace(/^["']|["']$/g, ""))
           const row: Record<string, unknown> = {}
@@ -837,7 +738,6 @@ export default function HardwareApp() {
           jsonData.push(row)
         }
       } else {
-        // Excel file - use XLSX parser
         const data = await file.arrayBuffer()
         const workbook = XLSX.read(data, { type: "array" })
         const sheetName = workbook.SheetNames[0]
@@ -847,8 +747,6 @@ export default function HardwareApp() {
           defval: "",
         })
       }
-
-      console.log("[v0] Parsed data sample:", jsonData.slice(0, 3))
 
       if (jsonData.length === 0) {
         setImportStatus({
@@ -869,9 +767,7 @@ export default function HardwareApp() {
       const existingProductNames = new Set(products.map((p) => p.name.toLowerCase().trim()))
 
       const firstRowKeys = Object.keys(jsonData[0])
-      console.log("[v0] Available columns:", firstRowKeys)
 
-      // Find matching column names (case-insensitive, partial match)
       const findColumn = (keywords: string[]): string | undefined => {
         return firstRowKeys.find((key) => {
           const keyLower = key.toLowerCase()
@@ -882,8 +778,6 @@ export default function HardwareApp() {
       const nameColumn = findColumn(["nombre", "producto", "name", "descripcion"])
       const costColumn = findColumn(["costo", "cost"])
       const priceColumn = findColumn(["precio", "venta", "price"])
-
-      console.log("[v0] Matched columns - Name:", nameColumn, "Cost:", costColumn, "Price:", priceColumn)
 
       if (!nameColumn) {
         setImportStatus({
@@ -899,12 +793,8 @@ export default function HardwareApp() {
         const row = jsonData[i]
 
         const name = (row[nameColumn!] || "") as string
-
-        // Parse cost - handle formats like "$1.500" or "1500"
         const costRaw = costColumn ? ((row[costColumn] || "0") as string) : "0"
         const cost = Number.parseFloat(costRaw.toString().replace(/[$.,]/g, "")) || 0
-
-        // Parse price - handle formats like "$2.000" or "2000"
         const priceRaw = priceColumn ? ((row[priceColumn] || "0") as string) : "0"
         const price = Number.parseFloat(priceRaw.toString().replace(/[$.,]/g, "")) || 0
 
@@ -933,6 +823,7 @@ export default function HardwareApp() {
             newProducts.push({
               id: response.data.id,
               name: response.data.name,
+              cost: response.data.cost,
               stock: 0,
               price: response.data.price,
               category: undefined,
@@ -950,7 +841,6 @@ export default function HardwareApp() {
         }
       }
 
-      // Update the products state with newly imported products
       setProducts((prev) => [...prev, ...newProducts])
 
       const statusParts: string[] = []
@@ -964,7 +854,6 @@ export default function HardwareApp() {
         details: importResults.slice(0, 15),
       })
 
-      // Auto-close modal after 3 seconds on success (only if no errors)
       if (errorCount === 0 && successCount > 0) {
         setTimeout(() => {
           setIsImportModalOpen(false)
@@ -981,7 +870,6 @@ export default function HardwareApp() {
     }
 
     setIsProcessing(false)
-    // Reset file input
     e.target.value = ""
   }
 
@@ -995,7 +883,7 @@ export default function HardwareApp() {
     <div
       className="min-h-screen font-sans text-slate-200"
       style={{
-        background: "linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #0f0f1a 100%)",
+        background: "#0f172a", // Fallback
       }}
     >
       <AnimatedBackground />
@@ -1003,50 +891,56 @@ export default function HardwareApp() {
       <nav className="fixed top-0 left-0 right-0 z-50">
         <div className="mx-4 mt-4">
           <GlassCard className="!rounded-2xl">
-            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between py-3">
               <div className="flex items-center gap-4">
                 <div
                   className="p-2.5 rounded-xl relative overflow-hidden"
                   style={{
-                    background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
-                    boxShadow: "0 4px 20px rgba(99, 102, 241, 0.4)",
+                    background: "linear-gradient(135deg, #1e40af 0%, #172554 100%)", // Blue
+                    border: "1px solid #3b82f6",
                   }}
                 >
-                  <Package className="text-white relative z-10" size={22} />
+                  <Package className="text-yellow-400 relative z-10" size={22} />
                 </div>
-                <span className="text-xl font-bold text-white tracking-tight">Inventario Pro</span>
+                <div>
+                  <span className="text-xl font-extrabold text-white tracking-tight block leading-none">Inventario</span>
+                  <span className="text-sm font-bold text-yellow-500 tracking-wider">PRO</span>
+                </div>
+                
                 <span
-                  className={`text-xs px-4 py-1.5 rounded-full font-medium transition-all duration-400`}
+                  className={`text-xs px-4 py-1.5 rounded-full font-bold uppercase tracking-wide transition-all duration-400 ml-4`}
                   style={{
                     background:
                       role === "admin"
-                        ? "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%)"
-                        : "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(34, 211, 238, 0.1) 100%)",
-                    border: role === "admin" ? "1px solid rgba(99, 102, 241, 0.3)" : "1px solid rgba(6, 182, 212, 0.3)",
-                    color: role === "admin" ? "#a5b4fc" : "#67e8f9",
+                        ? "rgba(234, 179, 8, 0.1)"
+                        : "rgba(59, 130, 246, 0.1)",
+                    border: role === "admin" ? "1px solid rgba(234, 179, 8, 0.4)" : "1px solid rgba(59, 130, 246, 0.4)",
+                    color: role === "admin" ? "#facc15" : "#60a5fa",
                   }}
                 >
-                  {role === "admin" ? "✦ Administrador" : "◇ Empleado"}
+                  {/* Changed label from Empleado to Asesor */}
+                  {role === "admin" ? "Admin" : "Asesor"}
                 </span>
               </div>
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400 transition-all duration-400"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-400 transition-all duration-400 hover:text-white"
                 style={{
                   background: "transparent",
+                  border: "1px solid transparent",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.08)"
-                  e.currentTarget.style.color = "#fff"
+                  e.currentTarget.style.background = "rgba(255,255,255,0.05)"
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = "transparent"
-                  e.currentTarget.style.color = "#94a3b8"
+                  e.currentTarget.style.borderColor = "transparent"
                 }}
               >
                 <LogOut size={18} />
-                <span>Cerrar Sesión</span>
+                <span className="hidden sm:inline">Salir</span>
               </button>
             </div>
           </GlassCard>
@@ -1057,17 +951,17 @@ export default function HardwareApp() {
       <main className="pt-32 pb-12 px-6 max-w-7xl mx-auto relative z-10">
         {error && (
           <div
-            className="mb-6 p-4 rounded-2xl flex items-center gap-3 animate-fade-up"
+            className="mb-6 p-4 rounded-xl flex items-center gap-3 animate-fade-up"
             style={{
-              background: "linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(244, 63, 94, 0.05) 100%)",
-              border: "1px solid rgba(239, 68, 68, 0.2)",
+              background: "rgba(220, 38, 38, 0.1)",
+              border: "1px solid rgba(220, 38, 38, 0.3)",
             }}
           >
             <AlertCircle size={20} className="text-red-400" />
-            <span className="text-red-300">{error}</span>
+            <span className="text-red-300 font-medium">{error}</span>
             <button
               onClick={() => setError(null)}
-              className="ml-auto text-red-400 hover:text-red-300 transition-colors duration-300"
+              className="ml-auto text-red-400 hover:text-red-200 transition-colors duration-300"
             >
               <X size={18} />
             </button>
@@ -1080,42 +974,50 @@ export default function HardwareApp() {
             value={products.length}
             icon={Package}
             gradient={{
-              bg: "#a78bfa",
-              border: "rgba(167, 139, 250, 0.3)",
-              iconBg: "linear-gradient(135deg, rgba(167, 139, 250, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%)",
+              bg: "#3b82f6", // Blue
+              text: "#60a5fa",
+              border: "rgba(59, 130, 246, 0.3)",
+              iconBg: "rgba(59, 130, 246, 0.1)",
             }}
             delay={0}
           />
-          <StatCard
-            title="Valor Inventario"
-            value={`$${products.reduce((acc, p) => acc + p.price, 0).toFixed(0)}`}
-            icon={DollarSign}
-            gradient={{
-              bg: "#34d399",
-              border: "rgba(52, 211, 153, 0.3)",
-              iconBg: "linear-gradient(135deg, rgba(52, 211, 153, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%)",
-            }}
-            delay={100}
-          />
-          <StatCard
-            title="Margen Promedio"
-            value={(() => {
-              const validProducts = products.filter(
-                (p) => p.price > 0 && p.cost > 0 && !isNaN(p.price) && !isNaN(p.cost),
-              )
-              if (validProducts.length === 0) return "0%"
-              const avgMargin =
-                validProducts.reduce((acc, p) => acc + ((p.price - p.cost) / p.price) * 100, 0) / validProducts.length
-              return `${avgMargin.toFixed(0)}%`
-            })()}
-            icon={TrendingUp}
-            gradient={{
-              bg: "#fbbf24",
-              border: "rgba(251, 191, 36, 0.3)",
-              iconBg: "linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%)",
-            }}
-            delay={200}
-          />
+          {/* Only show these stats for Admin */}
+          {role === "admin" && (
+            <>
+              <StatCard
+                title="Valor Inventario"
+                value={`$${products.reduce((acc, p) => acc + p.price, 0).toFixed(0)}`}
+                icon={DollarSign}
+                gradient={{
+                  bg: "#10b981", // Green
+                  text: "#34d399",
+                  border: "rgba(16, 185, 129, 0.3)",
+                  iconBg: "rgba(16, 185, 129, 0.1)",
+                }}
+                delay={100}
+              />
+              <StatCard
+                title="Margen Promedio"
+                value={(() => {
+                  const validProducts = products.filter(
+                    (p) => p.price > 0 && p.cost > 0 && !isNaN(p.price) && !isNaN(p.cost),
+                  )
+                  if (validProducts.length === 0) return "0%"
+                  const avgMargin =
+                    validProducts.reduce((acc, p) => acc + ((p.price - p.cost) / p.price) * 100, 0) / validProducts.length
+                  return `${avgMargin.toFixed(0)}%`
+                })()}
+                icon={TrendingUp}
+                gradient={{
+                  bg: "#eab308", // Yellow
+                  text: "#facc15",
+                  border: "rgba(234, 179, 8, 0.3)",
+                  iconBg: "rgba(234, 179, 8, 0.1)",
+                }}
+                delay={200}
+              />
+            </>
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
@@ -1131,24 +1033,20 @@ export default function HardwareApp() {
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={() => setIsImportModalOpen(true)}
-                className="flex items-center px-5 py-3.5 rounded-2xl text-white transition-all duration-400 group"
+                className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group"
                 style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
+                  background: "rgba(255,255,255,0.03)",
                   border: "1px solid rgba(255,255,255,0.1)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135deg, rgba(52, 211, 153, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%)"
-                  e.currentTarget.style.borderColor = "rgba(52, 211, 153, 0.3)"
+                  e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)"
+                  e.currentTarget.style.borderColor = "rgba(16, 185, 129, 0.4)"
                   e.currentTarget.style.transform = "translateY(-2px)"
-                  e.currentTarget.style.boxShadow = "0 8px 30px rgba(52, 211, 153, 0.15)"
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)"
+                  e.currentTarget.style.background = "rgba(255,255,255,0.03)"
                   e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
                   e.currentTarget.style.transform = "translateY(0)"
-                  e.currentTarget.style.boxShadow = "none"
                 }}
               >
                 <FileSpreadsheet
@@ -1160,24 +1058,20 @@ export default function HardwareApp() {
 
               <button
                 onClick={handleExportData}
-                className="flex items-center px-5 py-3.5 rounded-2xl text-white transition-all duration-400 group"
+                className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group"
                 style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                   background: "rgba(255,255,255,0.03)",
+                   border: "1px solid rgba(255,255,255,0.1)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.08) 100%)"
-                  e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.3)"
+                  e.currentTarget.style.background = "rgba(59, 130, 246, 0.1)"
+                  e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.4)"
                   e.currentTarget.style.transform = "translateY(-2px)"
-                  e.currentTarget.style.boxShadow = "0 8px 30px rgba(59, 130, 246, 0.15)"
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)"
+                  e.currentTarget.style.background = "rgba(255,255,255,0.03)"
                   e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
                   e.currentTarget.style.transform = "translateY(0)"
-                  e.currentTarget.style.boxShadow = "none"
                 }}
               >
                 <Download
@@ -1206,50 +1100,46 @@ export default function HardwareApp() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr
-                  className="text-slate-400 text-xs uppercase tracking-wider"
+                  className="text-slate-400 text-xs font-bold uppercase tracking-wider"
                   style={{
-                    background: "linear-gradient(to right, rgba(255,255,255,0.05), transparent)",
-                    borderBottom: "1px solid rgba(255,255,255,0.08)",
+                    background: "rgba(15, 23, 42, 0.3)",
+                    borderBottom: "1px solid rgba(255,255,255,0.05)",
                   }}
                 >
-                  <th className="p-6 font-semibold">Producto</th>
-                  {role === "admin" && <th className="p-6 font-semibold text-right">Costo</th>}
-                  <th className="p-6 font-semibold text-right">Precio Venta</th>
-                  <th className="p-6 font-semibold text-right">Margen</th>
-                  {role === "admin" && <th className="p-6 font-semibold text-right">Acciones</th>}
+                  <th className="p-6">Producto</th>
+                  {role === "admin" && <th className="p-6 text-right">Costo</th>}
+                  <th className="p-6 text-right">Precio Venta</th>
+                  {/* Only show Margin column header for Admin */}
+                  {role === "admin" && <th className="p-6 text-right">Margen</th>}
+                  {role === "admin" && <th className="p-6 text-right">Acciones</th>}
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={5} className="p-16 text-center">
+                    <td colSpan={role === "admin" ? 5 : 2} className="p-16 text-center">
                       <div className="flex flex-col items-center">
                         <div className="relative">
-                          <Loader2 size={48} className="text-indigo-500 animate-spin" />
-                          <div className="absolute inset-0 animate-ping opacity-30">
-                            <Loader2 size={48} className="text-indigo-500" />
-                          </div>
+                          <Loader2 size={48} className="text-yellow-500 animate-spin" />
                         </div>
-                        <p className="text-slate-400 mt-4">Cargando productos desde Firebase...</p>
+                        <p className="text-slate-400 mt-4">Cargando inventario...</p>
                       </div>
                     </td>
                   </tr>
                 ) : filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-16 text-center text-slate-500">
+                    <td colSpan={role === "admin" ? 5 : 2} className="p-16 text-center text-slate-500">
                       <div className="flex flex-col items-center">
                         <div
-                          className="p-6 rounded-3xl mb-4"
+                          className="p-6 rounded-full mb-4"
                           style={{
-                            background:
-                              "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)",
-                            border: "1px solid rgba(255,255,255,0.08)",
+                            background: "rgba(255,255,255,0.03)",
+                            border: "1px solid rgba(255,255,255,0.05)",
                           }}
                         >
                           <Package size={48} className="opacity-30" />
                         </div>
-                        <p className="text-lg">No se encontraron productos</p>
-                        <p className="text-sm text-slate-600 mt-1">Intenta con otra búsqueda</p>
+                        <p className="text-lg font-medium">No se encontraron productos</p>
                       </div>
                     </td>
                   </tr>
@@ -1257,13 +1147,12 @@ export default function HardwareApp() {
                   filteredProducts.map((product, index) => (
                     <tr
                       key={product.id}
-                      className="group transition-all duration-400"
+                      className="group transition-all duration-300"
                       style={{
-                        borderBottom: "1px solid rgba(255,255,255,0.04)",
+                        borderBottom: "1px solid rgba(255,255,255,0.03)",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          "linear-gradient(to right, rgba(99, 102, 241, 0.08), transparent)"
+                         e.currentTarget.style.background = "rgba(30, 41, 59, 0.4)"
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = "transparent"
@@ -1272,17 +1161,17 @@ export default function HardwareApp() {
                       <td className="p-6">
                         <div className="flex items-center gap-4">
                           <div
-                            className="w-12 h-12 rounded-2xl flex items-center justify-center text-indigo-400 font-bold text-sm transition-transform duration-400 group-hover:scale-110"
+                            className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm transition-transform duration-400 group-hover:scale-105"
                             style={{
-                              background:
-                                "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%)",
-                              border: "1px solid rgba(99, 102, 241, 0.2)",
+                              background: "rgba(59, 130, 246, 0.1)", 
+                              border: "1px solid rgba(59, 130, 246, 0.2)",
+                              color: "#60a5fa"
                             }}
                           >
                             {index + 1}
                           </div>
                           <div>
-                            <div className="font-semibold text-white text-lg transition-colors duration-400 group-hover:text-indigo-300">
+                            <div className="font-bold text-white text-lg transition-colors duration-400 group-hover:text-yellow-400">
                               {product.name}
                             </div>
                             <div className="text-xs text-slate-500 font-mono">ID: {product.id.slice(0, 8)}</div>
@@ -1291,48 +1180,47 @@ export default function HardwareApp() {
                       </td>
 
                       {role === "admin" && (
-                        <td className="p-6 text-right font-mono text-slate-300">${Number(product.cost).toFixed(2)}</td>
+                        <td className="p-6 text-right font-mono font-medium text-slate-300">${Number(product.cost).toFixed(2)}</td>
                       )}
 
                       <td className="p-6 text-right">
                         <span
-                          className="inline-flex items-center gap-1 px-4 py-2 rounded-xl font-mono font-bold"
+                          className="inline-flex items-center gap-1 px-4 py-2 rounded-lg font-mono font-bold text-lg"
                           style={{
-                            background:
-                              "linear-gradient(135deg, rgba(52, 211, 153, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%)",
-                            border: "1px solid rgba(52, 211, 153, 0.2)",
-                            color: "#34d399",
-                            boxShadow: "0 4px 20px rgba(52, 211, 153, 0.1)",
+                            color: "#fff",
+                            textShadow: "0 0 10px rgba(255,255,255,0.2)"
                           }}
                         >
-                          <DollarSign size={14} />
-                          {Number(product.price).toFixed(2)}
+                          ${Number(product.price).toFixed(2)}
                         </span>
                       </td>
-
-                      <td className="p-6 text-right">
-                        {role === "admin" && product.price > 0 ? (
-                          <span
-                            className="inline-block px-3 py-1.5 rounded-xl font-medium text-sm"
-                            style={{
-                              background:
-                                ((product.price - product.cost) / product.price) * 100 >= 30
-                                  ? "linear-gradient(135deg, rgba(52, 211, 153, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%)"
-                                  : "linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%)",
-                              border:
-                                ((product.price - product.cost) / product.price) * 100 >= 30
-                                  ? "1px solid rgba(52, 211, 153, 0.3)"
-                                  : "1px solid rgba(251, 191, 36, 0.3)",
-                              color:
-                                ((product.price - product.cost) / product.price) * 100 >= 30 ? "#34d399" : "#fbbf24",
-                            }}
-                          >
-                            {(((product.price - product.cost) / product.price) * 100).toFixed(1)}%
-                          </span>
-                        ) : (
-                          <span className="text-slate-500">---</span>
-                        )}
-                      </td>
+                      
+                      {/* Only show Margin value for Admin */}
+                      {role === "admin" && (
+                        <td className="p-6 text-right">
+                          {product.price > 0 ? (
+                            <span
+                              className="inline-block px-3 py-1.5 rounded-lg font-bold text-sm"
+                              style={{
+                                background:
+                                  ((product.price - product.cost) / product.price) * 100 >= 30
+                                    ? "rgba(16, 185, 129, 0.1)"
+                                    : "rgba(234, 179, 8, 0.1)",
+                                border:
+                                  ((product.price - product.cost) / product.price) * 100 >= 30
+                                    ? "1px solid rgba(16, 185, 129, 0.3)"
+                                    : "1px solid rgba(234, 179, 8, 0.3)",
+                                color:
+                                  ((product.price - product.cost) / product.price) * 100 >= 30 ? "#34d399" : "#facc15",
+                              }}
+                            >
+                              {(((product.price - product.cost) / product.price) * 100).toFixed(1)}%
+                            </span>
+                          ) : (
+                            <span className="text-slate-600">---</span>
+                          )}
+                        </td>
+                      )}
 
                       {role === "admin" && (
                         <td className="p-6 text-right">
@@ -1342,11 +1230,10 @@ export default function HardwareApp() {
                                 setEditingProduct(product)
                                 setIsModalOpen(true)
                               }}
-                              className="p-3 rounded-xl transition-all duration-400 hover:scale-110"
+                              className="p-3 rounded-lg transition-all duration-300 hover:scale-110"
                               style={{
-                                background:
-                                  "linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%)",
-                                border: "1px solid rgba(59, 130, 246, 0.2)",
+                                background: "rgba(59, 130, 246, 0.1)",
+                                border: "1px solid rgba(59, 130, 246, 0.3)",
                                 color: "#60a5fa",
                               }}
                               title="Editar"
@@ -1355,11 +1242,10 @@ export default function HardwareApp() {
                             </button>
                             <button
                               onClick={() => handleDeleteProduct(product.id)}
-                              className="p-3 rounded-xl transition-all duration-400 hover:scale-110"
+                              className="p-3 rounded-lg transition-all duration-300 hover:scale-110"
                               style={{
-                                background:
-                                  "linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.1) 100%)",
-                                border: "1px solid rgba(239, 68, 68, 0.2)",
+                                background: "rgba(239, 68, 68, 0.1)",
+                                border: "1px solid rgba(239, 68, 68, 0.3)",
                                 color: "#f87171",
                               }}
                               title="Eliminar"
@@ -1378,12 +1264,13 @@ export default function HardwareApp() {
         </GlassCard>
       </main>
 
+      {/* Modals remain unchanged visually but are part of the full code */}
       {isModalOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           style={{
-            background: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(8px)",
+            background: "rgba(0,0,0,0.8)",
+            backdropFilter: "blur(5px)",
           }}
         >
           <GlassCard className="w-full max-w-md p-8 animate-scale-in">
@@ -1391,16 +1278,7 @@ export default function HardwareApp() {
               <h2 className="text-2xl font-bold text-white">{editingProduct ? "Editar Producto" : "Nuevo Producto"}</h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-xl text-slate-400 transition-all duration-300"
-                style={{ background: "transparent" }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.1)"
-                  e.currentTarget.style.color = "#fff"
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent"
-                  e.currentTarget.style.color = "#94a3b8"
-                }}
+                className="p-2 rounded-lg text-slate-400 transition-colors hover:text-white"
               >
                 <X size={20} />
               </button>
@@ -1408,14 +1286,14 @@ export default function HardwareApp() {
 
             <form onSubmit={editingProduct ? handleEditProduct : handleAddProduct} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">
-                  Nombre del Producto <span className="text-red-400">*</span>
+                <label className="block text-sm font-bold text-slate-400 mb-2">
+                  Nombre del Producto <span className="text-yellow-500">*</span>
                 </label>
                 <GlassInput
                   autoFocus
                   required
                   type="text"
-                  placeholder="Ej: Taladro Profesional"
+                  placeholder="Ej: Taladro Percutor 1/2"
                   value={editingProduct ? editingProduct.name : newProduct.name}
                   onChange={(e) =>
                     editingProduct
@@ -1427,7 +1305,7 @@ export default function HardwareApp() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-2">Costo ($)</label>
+                  <label className="block text-sm font-bold text-slate-400 mb-2">Costo ($)</label>
                   <GlassInput
                     type="number"
                     step="0.01"
@@ -1441,7 +1319,7 @@ export default function HardwareApp() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-2">Venta ($)</label>
+                  <label className="block text-sm font-bold text-slate-400 mb-2">Venta ($)</label>
                   <GlassInput
                     type="number"
                     step="0.01"
@@ -1461,23 +1339,7 @@ export default function HardwareApp() {
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   disabled={isLoading}
-                  className="flex-1 py-3.5 px-4 rounded-2xl text-slate-300 transition-all duration-400 disabled:opacity-50"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isLoading) {
-                      e.currentTarget.style.background =
-                        "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)"
-                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background =
-                      "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)"
-                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
-                  }}
+                  className="flex-1 py-3.5 px-4 rounded-xl text-slate-300 transition-all duration-400 disabled:opacity-50 hover:bg-white/5 border border-white/10"
                 >
                   Cancelar
                 </button>
@@ -1503,8 +1365,8 @@ export default function HardwareApp() {
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           style={{
-            background: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(8px)",
+            background: "rgba(0,0,0,0.8)",
+            backdropFilter: "blur(5px)",
           }}
         >
           <GlassCard className="w-full max-w-lg p-8 animate-scale-in">
@@ -1515,16 +1377,7 @@ export default function HardwareApp() {
                   setIsImportModalOpen(false)
                   setImportStatus(null)
                 }}
-                className="p-2 rounded-xl text-slate-400 transition-all duration-300"
-                style={{ background: "transparent" }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "rgba(255,255,255,0.1)"
-                  e.currentTarget.style.color = "#fff"
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent"
-                  e.currentTarget.style.color = "#94a3b8"
-                }}
+                className="p-2 rounded-lg text-slate-400 hover:text-white"
               >
                 <X size={20} />
               </button>
@@ -1533,18 +1386,18 @@ export default function HardwareApp() {
             <div className="space-y-6">
               {/* Upload Area */}
               <div
-                className="border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center text-center relative cursor-pointer group transition-all duration-400"
+                className="border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center text-center relative cursor-pointer group transition-all duration-400"
                 style={{
                   borderColor: "rgba(255,255,255,0.1)",
-                  background: "transparent",
+                  background: "rgba(15, 23, 42, 0.4)",
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(99, 102, 241, 0.4)"
-                  e.currentTarget.style.background = "rgba(99, 102, 241, 0.05)"
+                  e.currentTarget.style.borderColor = "rgba(234, 179, 8, 0.5)"
+                  e.currentTarget.style.background = "rgba(234, 179, 8, 0.05)"
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
-                  e.currentTarget.style.background = "transparent"
+                  e.currentTarget.style.background = "rgba(15, 23, 42, 0.4)"
                 }}
               >
                 <input
@@ -1556,62 +1409,52 @@ export default function HardwareApp() {
                 />
                 {isProcessing ? (
                   <div className="relative">
-                    <Loader2 size={56} className="text-indigo-500 animate-spin" />
-                    <div className="absolute inset-0 animate-ping opacity-30">
-                      <Loader2 size={56} className="text-indigo-500" />
-                    </div>
+                    <Loader2 size={56} className="text-yellow-500 animate-spin" />
                   </div>
                 ) : (
                   <div
                     className="p-5 rounded-2xl mb-4 transition-transform duration-400 group-hover:scale-110"
                     style={{
-                      background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%)",
-                      border: "1px solid rgba(99, 102, 241, 0.2)",
+                      background: "rgba(234, 179, 8, 0.1)",
+                      border: "1px solid rgba(234, 179, 8, 0.2)",
                     }}
                   >
-                    <Upload size={40} className="text-indigo-400" />
+                    <Upload size={40} className="text-yellow-500" />
                   </div>
                 )}
-                <h3 className="text-white font-semibold text-lg mb-1">
-                  {isProcessing ? "Procesando archivo..." : "Arrastra tu archivo aquí"}
+                <h3 className="text-white font-bold text-lg mb-1">
+                  {isProcessing ? "Procesando archivo..." : "Arrastra tu archivo Excel/CSV"}
                 </h3>
                 <p className="text-slate-500 text-sm">Soporta .xlsx y .csv</p>
-                <p className="text-slate-600 text-xs mt-2">Columnas: NOMBRE, COSTO, PRECIO DE VENTA</p>
               </div>
 
               {/* Status */}
               {importStatus && (
                 <div
-                  className="p-5 rounded-2xl flex items-start gap-3 animate-fade-up"
+                  className="p-5 rounded-xl flex items-start gap-3 animate-fade-up"
                   style={{
                     background:
                       importStatus.type === "success"
-                        ? "linear-gradient(135deg, rgba(52, 211, 153, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)"
+                        ? "rgba(16, 185, 129, 0.1)"
                         : importStatus.type === "warning"
-                          ? "linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)"
-                          : "linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%)",
+                          ? "rgba(234, 179, 8, 0.1)"
+                          : "rgba(239, 68, 68, 0.1)",
                     border:
                       importStatus.type === "success"
-                        ? "1px solid rgba(52, 211, 153, 0.2)"
+                        ? "1px solid rgba(16, 185, 129, 0.2)"
                         : importStatus.type === "warning"
-                          ? "1px solid rgba(251, 191, 36, 0.2)"
+                          ? "1px solid rgba(234, 179, 8, 0.2)"
                           : "1px solid rgba(239, 68, 68, 0.2)",
                   }}
                 >
                   <div
-                    className="p-2 rounded-xl"
+                    className="p-2 rounded-lg"
                     style={{
-                      background:
-                        importStatus.type === "success"
-                          ? "rgba(52, 211, 153, 0.2)"
-                          : importStatus.type === "warning"
-                            ? "rgba(251, 191, 36, 0.2)"
-                            : "rgba(239, 68, 68, 0.2)",
                       color:
                         importStatus.type === "success"
                           ? "#34d399"
                           : importStatus.type === "warning"
-                            ? "#fbbf24"
+                            ? "#facc15"
                             : "#f87171",
                     }}
                   >
@@ -1619,20 +1462,20 @@ export default function HardwareApp() {
                   </div>
                   <div>
                     <span
-                      className="font-medium"
+                      className="font-bold"
                       style={{
                         color:
                           importStatus.type === "success"
                             ? "#34d399"
                             : importStatus.type === "warning"
-                              ? "#fbbf24"
+                              ? "#facc15"
                               : "#f87171",
                       }}
                     >
                       {importStatus.msg}
                     </span>
                     {importStatus.details && (
-                      <ul className="mt-2 text-xs opacity-80 list-disc list-inside">
+                      <ul className="mt-2 text-xs opacity-80 list-disc list-inside text-slate-300">
                         {importStatus.details.map((err, idx) => (
                           <li key={idx}>{err}</li>
                         ))}

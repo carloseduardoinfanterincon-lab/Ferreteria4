@@ -4,39 +4,39 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.13 0.02 270);
-  --foreground: oklch(0.95 0.01 270);
-  --card: oklch(0.18 0.02 270);
-  --card-foreground: oklch(0.95 0.01 270);
-  --popover: oklch(0.15 0.02 270);
-  --popover-foreground: oklch(0.95 0.01 270);
-  --primary: oklch(0.65 0.25 290);
-  --primary-foreground: oklch(0.98 0.01 270);
-  --secondary: oklch(0.25 0.03 270);
-  --secondary-foreground: oklch(0.95 0.01 270);
-  --muted: oklch(0.25 0.02 270);
-  --muted-foreground: oklch(0.65 0.02 270);
-  --accent: oklch(0.55 0.2 280);
-  --accent-foreground: oklch(0.98 0.01 270);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.98 0.01 270);
-  --border: oklch(0.3 0.03 270);
-  --input: oklch(0.22 0.02 270);
-  --ring: oklch(0.65 0.25 290);
-  --chart-1: oklch(0.65 0.25 290);
-  --chart-2: oklch(0.6 0.2 200);
-  --chart-3: oklch(0.55 0.18 160);
-  --chart-4: oklch(0.7 0.2 80);
-  --chart-5: oklch(0.6 0.22 350);
+  --background: #003366; /* Azul para el fondo */
+  --foreground: #f7f7f7; /* Blanco para el texto principal */
+  --card: #0066cc; /* Azul para las tarjetas */
+  --card-foreground: #f7f7f7; /* Blanco para el texto de las tarjetas */
+  --popover: #ffcc00; /* Amarillo para los popovers */
+  --popover-foreground: #003366; /* Azul para el texto del popover */
+  --primary: #003366; /* Azul para los botones y elementos primarios */
+  --primary-foreground: #ffffff; /* Blanco para el texto de botones */
+  --secondary: #ffcc00; /* Amarillo para los elementos secundarios */
+  --secondary-foreground: #003366; /* Azul para el texto secundario */
+  --muted: #666666; /* Gris para los elementos desactivados */
+  --muted-foreground: #ffffff; /* Blanco para el texto desactivado */
+  --accent: #ffcc00; /* Amarillo para los acentos */
+  --accent-foreground: #003366; /* Azul para el texto de acentos */
+  --destructive: #ff3300; /* Rojo para acciones destructivas */
+  --destructive-foreground: #ffffff; /* Blanco para el texto destructivo */
+  --border: #003366; /* Azul para bordes */
+  --input: #ffffff; /* Blanco para campos de entrada */
+  --ring: #0066cc; /* Azul para el anillo de enfoque */
+  --chart-1: #003366; /* Azul para el primer gráfico */
+  --chart-2: #ffcc00; /* Amarillo para el segundo gráfico */
+  --chart-3: #0066cc; /* Azul para el tercer gráfico */
+  --chart-4: #ffcc00; /* Amarillo para el cuarto gráfico */
+  --chart-5: #003366; /* Azul para el quinto gráfico */
   --radius: 1rem;
-  --sidebar: oklch(0.15 0.02 270);
-  --sidebar-foreground: oklch(0.95 0.01 270);
-  --sidebar-primary: oklch(0.65 0.25 290);
-  --sidebar-primary-foreground: oklch(0.98 0.01 270);
-  --sidebar-accent: oklch(0.25 0.03 270);
-  --sidebar-accent-foreground: oklch(0.95 0.01 270);
-  --sidebar-border: oklch(0.3 0.03 270);
-  --sidebar-ring: oklch(0.65 0.25 290);
+  --sidebar: #003366; /* Azul para la barra lateral */
+  --sidebar-foreground: #ffffff; /* Blanco para el texto de la barra lateral */
+  --sidebar-primary: #0066cc; /* Azul para el color principal de la barra lateral */
+  --sidebar-primary-foreground: #ffffff; /* Blanco para el texto principal de la barra lateral */
+  --sidebar-accent: #ffcc00; /* Amarillo para los acentos de la barra lateral */
+  --sidebar-accent-foreground: #003366; /* Azul para el texto de acentos de la barra lateral */
+  --sidebar-border: #003366; /* Azul para los bordes de la barra lateral */
+  --sidebar-ring: #0066cc; /* Azul para el anillo de la barra lateral */
 }
 
 @theme inline {
