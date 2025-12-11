@@ -510,6 +510,142 @@ const StatCard = ({
   </GlassCard>
 )
 
+// --- Product Modal ---
+interface ProductModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onSave: (data: { name: string; cost: number; price: number }) => void
+  initialData: Product | null
+  isLoading: boolean
+}
+
+const ProductModal = ({ isOpen, onClose, onSave, initialData, isLoading }: ProductModalProps) => {
+  const [name, setName] = useState("")
+  const [cost, setCost] = useState<string | number>("")
+  const [price, setPrice] = useState<string | number>("")
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        setName(initialData.name)
+        setCost(initialData.cost)
+        setPrice(initialData.price)
+      } else {
+        setName("")
+        setCost("")
+        setPrice("")
+      }
+    }
+  }, [isOpen, initialData])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [isOpen, onClose])
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSave({
+      name,
+      cost: cost === "" ? 0 : Number(cost),
+      price: price === "" ? 0 : Number(price),
+    })
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{
+        background: "rgba(0,0,0,0.8)",
+        backdropFilter: "blur(5px)",
+      }}
+    >
+      <GlassCard className="w-full max-w-md p-8 animate-scale-in">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-white">{initialData ? "Editar Producto" : "Nuevo Producto"}</h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg text-slate-400 transition-colors hover:text-white"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-bold text-slate-400 mb-2">
+              Nombre del Producto <span className="text-yellow-500">*</span>
+            </label>
+            <GlassInput
+              autoFocus
+              required
+              type="text"
+              placeholder="Ej: Taladro Percutor 1/2"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-bold text-slate-400 mb-2">Costo ($)</label>
+              <GlassInput
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                value={cost}
+                onChange={(e) => setCost(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-400 mb-2">Venta ($)</label>
+              <GlassInput
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-4 mt-8 pt-6" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+              className="flex-1 py-3.5 px-4 rounded-xl text-slate-300 transition-all duration-400 disabled:opacity-50 hover:bg-white/5 border border-white/10"
+            >
+              Cancelar
+            </button>
+            <GradientButton type="submit" className="flex-1" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Guardando...
+                </>
+              ) : initialData ? (
+                "Guardar Cambios"
+              ) : (
+                "Crear Producto"
+              )}
+            </GradientButton>
+          </div>
+        </form>
+      </GlassCard>
+    </div>
+  )
+}
+
 // --- Main Dashboard ---
 export default function HardwareApp() {
   const [role, setRole] = useState<"admin" | "employee" | null>(null)
@@ -518,15 +654,7 @@ export default function HardwareApp() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
 
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    cost: 0,
-    price: 0,
-    category: "",
-    stock: 0,
-    supplier: "",
-    lastUpdate: "",
-  })
+  // Eliminamos formData del estado principal ya que ahora lo maneja el modal
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
 
   const [isLoading, setIsLoading] = useState(false)
@@ -538,6 +666,17 @@ export default function HardwareApp() {
     details?: string[]
   } | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  // Optimización: useEffect para manejar la tecla ESC
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isModalOpen) {
+        setIsModalOpen(false)
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [isModalOpen])
 
   useEffect(() => {
     if (role) {
@@ -583,34 +722,54 @@ export default function HardwareApp() {
     setProducts([])
   }
 
-  const handleAddProduct = async (e?: React.FormEvent) => {
-    e?.preventDefault()
-    if (newProduct.name && newProduct.cost >= 0 && newProduct.price >= 0) {
+  const handleSaveProduct = async (data: { name: string; cost: number; price: number }) => {
+    if (data.name && !isNaN(data.cost) && !isNaN(data.price) && data.cost >= 0 && data.price >= 0) {
       setIsLoading(true)
       setError(null)
       try {
-        const response = await createArticulo({
-          name: newProduct.name,
-          cost: newProduct.cost,
-          price: newProduct.price,
-        })
+        if (editingProduct) {
+          // Update existing product
+          const response = await updateArticulo(editingProduct.id, {
+            name: data.name,
+            cost: data.cost,
+            price: data.price,
+          })
 
-        if (response.success && response.data) {
-          const newProd: Product = {
-            id: response.data.id,
-            name: response.data.name,
-            cost: response.data.cost,
-            price: response.data.price,
-            category: newProduct.category,
-            stock: newProduct.stock,
-            supplier: newProduct.supplier,
-            lastUpdate: new Date().toLocaleDateString(),
+          if (response.success) {
+            setProducts((prev) =>
+              prev.map((p) =>
+                p.id === editingProduct.id ? { ...editingProduct, name: data.name, cost: data.cost, price: data.price } : p,
+              ),
+            )
+            setEditingProduct(null)
+            setIsModalOpen(false)
+          } else {
+            setError(response.error || "Error al actualizar producto")
           }
-          setProducts((prev) => [...prev, newProd])
-          setNewProduct({ name: "", cost: 0, price: 0, category: "", stock: 0, supplier: "", lastUpdate: "" })
-          setIsModalOpen(false)
         } else {
-          setError(response.error || "Error al crear producto")
+          // Create new product
+          const response = await createArticulo({
+            name: data.name,
+            cost: data.cost,
+            price: data.price,
+          })
+
+          if (response.success && response.data) {
+            const newProd: Product = {
+              id: response.data.id,
+              name: response.data.name,
+              cost: response.data.cost,
+              price: response.data.price,
+              category: "",
+              stock: 0,
+              supplier: "",
+              lastUpdate: new Date().toLocaleDateString(),
+            }
+            setProducts((prev) => [...prev, newProd])
+            setIsModalOpen(false)
+          } else {
+            setError(response.error || "Error al crear producto")
+          }
         }
       } catch (err) {
         setError("Error de conexión con Firebase")
@@ -618,39 +777,7 @@ export default function HardwareApp() {
       } finally {
         setIsLoading(false)
       }
-    } else if (!newProduct.name) {
-      setError("El nombre del producto es obligatorio.")
-    } else {
-      setError("El costo y el precio deben ser números válidos.")
-    }
-  }
-
-  const handleEditProduct = async (e?: React.FormEvent) => {
-    e?.preventDefault()
-    if (editingProduct && editingProduct.name && editingProduct.cost >= 0 && editingProduct.price >= 0) {
-      setIsLoading(true)
-      setError(null)
-      try {
-        const response = await updateArticulo(editingProduct.id, {
-          name: editingProduct.name,
-          cost: editingProduct.cost,
-          price: editingProduct.price,
-        })
-
-        if (response.success) {
-          setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? editingProduct : p)))
-          setEditingProduct(null)
-          setIsModalOpen(false)
-        } else {
-          setError(response.error || "Error al actualizar producto")
-        }
-      } catch (err) {
-        setError("Error de conexión con Firebase")
-        console.error(err)
-      } finally {
-        setIsLoading(false)
-      }
-    } else if (!editingProduct?.name) {
+    } else if (!data.name) {
       setError("El nombre del producto es obligatorio.")
     } else {
       setError("El costo y el precio deben ser números válidos.")
@@ -699,6 +826,25 @@ export default function HardwareApp() {
     ]
 
     XLSX.writeFile(workbook, `Inventario_Ferreteria_${new Date().toISOString().split("T")[0]}.xlsx`)
+  }
+
+  const handleDownloadTemplate = () => {
+    const headers = ["Nombre", "Costo", "Precio"]
+    const data = [
+      {
+        Nombre: "Ejemplo Producto",
+        Costo: 100,
+        Precio: 150,
+      },
+    ]
+
+    const worksheet = XLSX.utils.json_to_sheet(data)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Plantilla")
+
+    worksheet["!cols"] = [{ wch: 40 }, { wch: 15 }, { wch: 15 }]
+
+    XLSX.writeFile(workbook, "Plantilla_Importacion.xlsx")
   }
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1057,6 +1203,31 @@ export default function HardwareApp() {
               </button>
 
               <button
+                onClick={handleDownloadTemplate}
+                className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(234, 179, 8, 0.1)"
+                  e.currentTarget.style.borderColor = "rgba(234, 179, 8, 0.4)"
+                  e.currentTarget.style.transform = "translateY(-2px)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.03)"
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.transform = "translateY(0)"
+                }}
+              >
+                <FileSpreadsheet
+                  size={20}
+                  className="mr-2 text-yellow-400 group-hover:scale-110 transition-transform duration-400"
+                />
+                Plantilla
+              </button>
+
+              <button
                 onClick={handleExportData}
                 className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group"
                 style={{
@@ -1084,7 +1255,6 @@ export default function HardwareApp() {
               <GradientButton
                 onClick={() => {
                   setEditingProduct(null)
-                  setNewProduct({ name: "", cost: 0, price: 0, category: "", stock: 0, supplier: "", lastUpdate: "" })
                   setIsModalOpen(true)
                 }}
               >
@@ -1198,7 +1368,7 @@ export default function HardwareApp() {
                       {/* Only show Margin value for Admin */}
                       {role === "admin" && (
                         <td className="p-6 text-right">
-                          {product.price > 0 ? (
+                          {product.price > 0 && product.cost > 0 ? (
                             <span
                               className="inline-block px-3 py-1.5 rounded-lg font-bold text-sm"
                               style={{
@@ -1217,7 +1387,7 @@ export default function HardwareApp() {
                               {(((product.price - product.cost) / product.price) * 100).toFixed(1)}%
                             </span>
                           ) : (
-                            <span className="text-slate-600">---</span>
+                            <span className="text-slate-600">0%</span>
                           )}
                         </td>
                       )}
@@ -1264,102 +1434,14 @@ export default function HardwareApp() {
         </GlassCard>
       </main>
 
-      {/* Modals remain unchanged visually but are part of the full code */}
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-          style={{
-            background: "rgba(0,0,0,0.8)",
-            backdropFilter: "blur(5px)",
-          }}
-        >
-          <GlassCard className="w-full max-w-md p-8 animate-scale-in">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-white">{editingProduct ? "Editar Producto" : "Nuevo Producto"}</h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-lg text-slate-400 transition-colors hover:text-white"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={editingProduct ? handleEditProduct : handleAddProduct} className="space-y-5">
-              <div>
-                <label className="block text-sm font-bold text-slate-400 mb-2">
-                  Nombre del Producto <span className="text-yellow-500">*</span>
-                </label>
-                <GlassInput
-                  autoFocus
-                  required
-                  type="text"
-                  placeholder="Ej: Taladro Percutor 1/2"
-                  value={editingProduct ? editingProduct.name : newProduct.name}
-                  onChange={(e) =>
-                    editingProduct
-                      ? setEditingProduct({ ...editingProduct, name: e.target.value })
-                      : setNewProduct({ ...newProduct, name: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-slate-400 mb-2">Costo ($)</label>
-                  <GlassInput
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={editingProduct ? editingProduct.cost : newProduct.cost}
-                    onChange={(e) =>
-                      editingProduct
-                        ? setEditingProduct({ ...editingProduct, cost: Number(e.target.value) })
-                        : setNewProduct({ ...newProduct, cost: Number(e.target.value) })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-slate-400 mb-2">Venta ($)</label>
-                  <GlassInput
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={editingProduct ? editingProduct.price : newProduct.price}
-                    onChange={(e) =>
-                      editingProduct
-                        ? setEditingProduct({ ...editingProduct, price: Number(e.target.value) })
-                        : setNewProduct({ ...newProduct, price: Number(e.target.value) })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-4 mt-8 pt-6" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  disabled={isLoading}
-                  className="flex-1 py-3.5 px-4 rounded-xl text-slate-300 transition-all duration-400 disabled:opacity-50 hover:bg-white/5 border border-white/10"
-                >
-                  Cancelar
-                </button>
-                <GradientButton type="submit" className="flex-1" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 size={18} className="animate-spin" />
-                      Guardando...
-                    </>
-                  ) : editingProduct ? (
-                    "Guardar Cambios"
-                  ) : (
-                    "Crear Producto"
-                  )}
-                </GradientButton>
-              </div>
-            </form>
-          </GlassCard>
-        </div>
-      )}
+      {/* Modals */}
+      <ProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveProduct}
+        initialData={editingProduct}
+        isLoading={isLoading}
+      />
 
       {isImportModalOpen && (
         <div
