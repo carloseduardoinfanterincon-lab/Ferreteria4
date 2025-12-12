@@ -343,9 +343,9 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
                   textShadow: "0 2px 10px rgba(0,0,0,0.5)"
                 }}
               >
-                Inventario <span className="text-yellow-400">Pro</span>
+                Ferretería la <span className="text-yellow-400">4</span>
               </h1>
-              <p className="text-slate-400 font-medium text-lg">Sistema de Ferretería</p>
+              <p className="text-slate-400 font-medium text-lg">Inventario</p>
             </div>
 
             {/* Access Options */}
@@ -666,6 +666,8 @@ export default function HardwareApp() {
     details?: string[]
   } | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  const [adminFilter, setAdminFilter] = useState<'all' | 'noCost' | 'noPrice'>('all');
 
   // Optimización: useEffect para manejar la tecla ESC
   useEffect(() => {
@@ -1023,14 +1025,20 @@ export default function HardwareApp() {
     return <LoginScreen onLogin={handleLogin} />
   }
 
-  const filteredProducts = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Filtro avanzado para admin
+  let filteredProducts = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  if (role === 'admin') {
+    if (adminFilter === 'noCost') {
+      filteredProducts = filteredProducts.filter((p) => !p.cost || Number(p.cost) === 0);
+    } else if (adminFilter === 'noPrice') {
+      filteredProducts = filteredProducts.filter((p) => !p.price || Number(p.price) === 0);
+    }
+  }
 
   return (
     <div
       className="min-h-screen font-sans text-slate-200"
-      style={{
-        background: "#0f172a", // Fallback
-      }}
+      style={{ background: "#0f172a" }}
     >
       <AnimatedBackground />
 
@@ -1176,7 +1184,32 @@ export default function HardwareApp() {
           />
 
           {role === "admin" && (
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 items-center">
+              {/* Filtros de admin */}
+              <div className="flex gap-2 mr-4">
+                <button
+                  className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all duration-200 ${adminFilter === 'all' ? 'bg-yellow-500/20 border-yellow-400 text-yellow-300' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
+                  onClick={() => setAdminFilter('all')}
+                  type="button"
+                >
+                  Todos
+                </button>
+                <button
+                  className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all duration-200 ${adminFilter === 'noCost' ? 'bg-yellow-500/20 border-yellow-400 text-yellow-300' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
+                  onClick={() => setAdminFilter('noCost')}
+                  type="button"
+                >
+                  Sin Costo
+                </button>
+                <button
+                  className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all duration-200 ${adminFilter === 'noPrice' ? 'bg-yellow-500/20 border-yellow-400 text-yellow-300' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
+                  onClick={() => setAdminFilter('noPrice')}
+                  type="button"
+                >
+                  Sin Precio Venta
+                </button>
+              </div>
+
               <button
                 onClick={() => setIsImportModalOpen(true)}
                 className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group"
