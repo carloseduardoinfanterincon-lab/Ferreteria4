@@ -25,28 +25,26 @@ import {
 
 import * as XLSX from "xlsx"
 
+// Asegúrate de que esta ruta sea correcta en tu proyecto
 import { getArticulos, createArticulo, updateArticulo, deleteArticulo } from "./actions/productos"
+
+// --- COMPONENTS VISUALES ---
 
 const AnimatedBackground = () => (
   <div className="fixed inset-0 overflow-hidden pointer-events-none">
-    {/* Fondo base azul marino profundo (Industrial) */}
     <div
       className="absolute inset-0"
       style={{
-        background: "linear-gradient(to bottom right, #0f172a 0%, #172554 100%)", // Slate-900 to Blue-950
+        background: "linear-gradient(to bottom right, #0f172a 0%, #172554 100%)",
       }}
     />
-    
-    {/* Un solo destello sutil amarillo en la esquina superior derecha */}
     <div
       className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full opacity-10"
       style={{
-        background: "radial-gradient(circle, rgba(234, 179, 8, 1) 0%, transparent 70%)", // Yellow-500
+        background: "radial-gradient(circle, rgba(234, 179, 8, 1) 0%, transparent 70%)",
         filter: "blur(80px)",
       }}
     />
-    
-    {/* Grid muy sutil y limpio */}
     <div
       className="absolute inset-0 opacity-10"
       style={{
@@ -208,6 +206,7 @@ const GlassInput = ({
         background: "rgba(15, 23, 42, 0.6)",
         border: "1px solid rgba(255,255,255,0.1)",
         boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)",
+        ...props.style
       }}
       onFocus={(e) => {
         e.target.style.border = "1px solid rgba(234, 179, 8, 0.6)"
@@ -223,61 +222,6 @@ const GlassInput = ({
         props.onBlur?.(e)
       }}
     />
-  </div>
-)
-
-const ConfirmationModal = ({
-  message,
-  onConfirm,
-  onCancel,
-}: {
-  message: string
-  onConfirm: () => void
-  onCancel: () => void
-}) => (
-  <div
-    className="fixed inset-0 z-[110] flex items-center justify-center p-4"
-    style={{
-      background: "rgba(0,0,0,0.8)",
-      backdropFilter: "blur(4px)",
-    }}
-  >
-    <GlassCard className="w-full max-w-sm p-8 animate-scale-in">
-      <div className="flex items-center gap-4 mb-5">
-        <div
-          className="p-3.5 rounded-xl"
-          style={{
-            background: "linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.1) 100%)",
-            border: "1px solid rgba(239, 68, 68, 0.2)",
-          }}
-        >
-          <AlertCircle size={24} className="text-red-400" />
-        </div>
-        <h3 className="text-xl font-bold text-white">Confirmar Eliminación</h3>
-      </div>
-      <p className="text-slate-300 mb-8 leading-relaxed">{message}</p>
-      <div className="flex gap-4">
-        <button
-          onClick={onCancel}
-          className="flex-1 py-3.5 px-4 rounded-xl text-slate-300 transition-all duration-400"
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(255,255,255,0.1)",
-          }}
-          onMouseEnter={(e) => {
-             e.currentTarget.style.background = "rgba(255,255,255,0.1)"
-          }}
-          onMouseLeave={(e) => {
-             e.currentTarget.style.background = "rgba(255,255,255,0.05)"
-          }}
-        >
-          Cancelar
-        </button>
-        <GradientButton variant="danger" onClick={onConfirm} className="flex-1">
-          Eliminar
-        </GradientButton>
-      </div>
-    </GlassCard>
   </div>
 )
 
@@ -313,7 +257,6 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
       >
         <GlassCard className="overflow-hidden">
           <div className="p-8 md:p-10">
-            {/* Branding Header */}
             <div className="text-center mb-10">
               <div className="relative inline-block mb-6">
                 <div
@@ -348,13 +291,11 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
               <p className="text-slate-400 font-medium text-lg">Inventario</p>
             </div>
 
-            {/* Access Options */}
             <div className="space-y-5">
               <p className="text-sm text-slate-500 text-center mb-6 uppercase tracking-wider font-bold">
                 Seleccione su acceso
               </p>
 
-              {/* Asesor Button (Formerly Empleado) */}
               <button
                 onClick={() => onLogin("employee")}
                 className="w-full group relative flex items-center p-5 rounded-xl transition-all duration-400"
@@ -383,7 +324,6 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
                   <Users size={24} className="text-blue-400" />
                 </div>
                 <div className="ml-4 text-left flex-1">
-                  {/* Changed "Empleado" to "Asesor" */}
                   <h3 className="text-white font-bold text-lg">Asesor</h3>
                   <p className="text-sm text-slate-400">Consulta de precios y stock</p>
                 </div>
@@ -392,14 +332,12 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
                 </div>
               </button>
 
-              {/* Divider */}
               <div className="flex items-center gap-4 py-2">
                 <div className="flex-1 h-px bg-slate-700" />
                 <span className="text-xs text-slate-500 uppercase font-bold">o</span>
                 <div className="flex-1 h-px bg-slate-700" />
               </div>
 
-              {/* Admin Form */}
               <form onSubmit={handleAdminLogin} className="space-y-5">
                 <div
                   className="flex items-center gap-4 mb-5 p-4 rounded-xl"
@@ -445,12 +383,11 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
               </form>
             </div>
 
-            {/* Footer Tags */}
             <div
               className="mt-8 pt-6 flex justify-center gap-3 flex-wrap"
               style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
             >
-              {["Control de Stock", "Caja", "Facturación"].map((tag, i) => (
+              {["Control de Stock", "Caja", "Facturación"].map((tag) => (
                 <span
                   key={tag}
                   className="px-4 py-1.5 rounded-full text-xs font-medium text-slate-400 border border-slate-700 bg-slate-800/50"
@@ -466,7 +403,7 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
   )
 }
 
-// --- Product Data Type ---
+// --- TYPE DEFINITIONS ---
 interface Product {
   id: string
   name: string
@@ -510,7 +447,7 @@ const StatCard = ({
   </GlassCard>
 )
 
-// --- Product Modal ---
+// --- PRODUCT MODAL ---
 interface ProductModalProps {
   isOpen: boolean
   onClose: () => void
@@ -521,19 +458,29 @@ interface ProductModalProps {
 
 const ProductModal = ({ isOpen, onClose, onSave, initialData, isLoading }: ProductModalProps) => {
   const [name, setName] = useState("")
-  const [cost, setCost] = useState<string | number>("")
-  const [price, setPrice] = useState<string | number>("")
+  const [cost, setCost] = useState<string>("")
+  const [price, setPrice] = useState<string>("")
+  const [utility, setUtility] = useState<string>("")
 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
         setName(initialData.name)
-        setCost(initialData.cost)
-        setPrice(initialData.price)
+        setCost(initialData.cost.toString())
+        setPrice(initialData.price.toString())
+        
+        // CONDICIONAL AÑADIDO: Si costo o precio es 0, Margen = 0
+        if (initialData.price > 0 && initialData.cost > 0) {
+          const marginVal = (1 - (initialData.cost / initialData.price)) * 100
+          setUtility(marginVal.toFixed(2))
+        } else {
+          setUtility("0")
+        }
       } else {
         setName("")
         setCost("")
         setPrice("")
+        setUtility("")
       }
     }
   }, [isOpen, initialData])
@@ -547,6 +494,54 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, isLoading }: Produ
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [isOpen, onClose])
+
+  // Lógica de cálculo: Si cambio el Costo
+  const handleCostChange = (val: string) => {
+    setCost(val)
+    const numCost = parseFloat(val)
+    const numUtility = parseFloat(utility)
+    
+    // Si: Margen = 1 - (Costo/Precio)
+    // Entonces: Costo/Precio = 1 - Margen
+    // Entonces: Precio = Costo / (1 - Margen)
+    if (!isNaN(numCost) && !isNaN(numUtility) && numUtility < 100) {
+      const marginDecimal = numUtility / 100
+      const newPrice = numCost / (1 - marginDecimal)
+      setPrice(newPrice.toFixed(2))
+    }
+  }
+
+  // Lógica de cálculo: Si cambio la Utilidad (%)
+  const handleUtilityChange = (val: string) => {
+    setUtility(val)
+    const numUtility = parseFloat(val)
+    const numCost = parseFloat(cost)
+
+    // Precio = Costo / (1 - Margen)
+    if (!isNaN(numUtility) && !isNaN(numCost) && numUtility < 100) {
+      const marginDecimal = numUtility / 100
+      // Evitar división por cero si margen es 100%
+      if (marginDecimal !== 1) {
+        const newPrice = numCost / (1 - marginDecimal)
+        setPrice(newPrice.toFixed(2))
+      }
+    }
+  }
+
+  // Lógica de cálculo: Si cambio el Precio Manualmente
+  const handlePriceChange = (val: string) => {
+    setPrice(val)
+    const numPrice = parseFloat(val)
+    const numCost = parseFloat(cost)
+
+    // CONDICIONAL AÑADIDO: Si costo es 0 o precio es 0, Margen = 0
+    if (!isNaN(numPrice) && !isNaN(numCost) && numPrice > 0 && numCost > 0) {
+      const newUtility = (1 - (numCost / numPrice)) * 100
+      setUtility(newUtility.toFixed(2))
+    } else {
+      setUtility("0")
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -567,9 +562,11 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, isLoading }: Produ
         backdropFilter: "blur(5px)",
       }}
     >
-      <GlassCard className="w-full max-w-md p-8 animate-scale-in">
+      <GlassCard className="w-full max-w-lg p-8 animate-scale-in">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-white">{initialData ? "Editar Producto" : "Nuevo Producto"}</h2>
+          <h2 className="text-2xl font-bold text-white">
+            {initialData ? "Editar Producto" : "Nuevo Producto"}
+          </h2>
           <button
             onClick={onClose}
             className="p-2 rounded-lg text-slate-400 transition-colors hover:text-white"
@@ -578,7 +575,7 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, isLoading }: Produ
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-bold text-slate-400 mb-2">
               Nombre del Producto <span className="text-yellow-500">*</span>
@@ -593,29 +590,58 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, isLoading }: Produ
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4 items-end">
+            {/* Campo Costo */}
             <div>
-              <label className="block text-sm font-bold text-slate-400 mb-2">Costo ($)</label>
+              <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Costo ($)</label>
               <GlassInput
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 value={cost}
-                onChange={(e) => setCost(e.target.value)}
+                onChange={(e) => handleCostChange(e.target.value)}
+                style={{ borderColor: "rgba(59, 130, 246, 0.5)" }}
               />
             </div>
+
+            {/* Campo Utilidad */}
+            <div className="relative">
+              <label className="block text-xs font-bold text-yellow-500 mb-2 uppercase tracking-wide text-center">
+                Margen (%)
+              </label>
+               <div className="relative">
+                <input
+                  type="number"
+                  step="0.1"
+                  placeholder="%"
+                  value={utility}
+                  onChange={(e) => handleUtilityChange(e.target.value)}
+                  className="w-full rounded-xl py-4 px-3 text-center text-yellow-400 font-bold bg-slate-800/80 border border-yellow-500/30 focus:outline-none focus:border-yellow-500 transition-all"
+                />
+               </div>
+            </div>
+
+            {/* Campo Precio Venta */}
             <div>
-              <label className="block text-sm font-bold text-slate-400 mb-2">Venta ($)</label>
+              <label className="block text-xs font-bold text-emerald-400 mb-2 uppercase tracking-wide text-right">Venta ($)</label>
               <GlassInput
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => handlePriceChange(e.target.value)}
+                className="text-right font-bold text-emerald-300"
+                style={{ borderColor: "rgba(16, 185, 129, 0.5)" }}
               />
             </div>
+          </div>
+
+          {/* Resumen Visual */}
+          <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 flex justify-between text-sm">
+             <span className="text-slate-400">Ganancia por unidad:</span>
+             <span className="font-mono font-bold text-emerald-400">
+               ${(!isNaN(parseFloat(price)) && !isNaN(parseFloat(cost))) ? (parseFloat(price) - parseFloat(cost)).toFixed(2) : "0.00"}
+             </span>
           </div>
 
           <div className="flex gap-4 mt-8 pt-6" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
@@ -646,30 +672,24 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, isLoading }: Produ
   )
 }
 
-// --- Main Dashboard ---
+// --- MAIN APPLICATION ---
 export default function HardwareApp() {
   const [role, setRole] = useState<"admin" | "employee" | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
-
-  // Eliminamos formData del estado principal ya que ahora lo maneja el modal
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
   const [importStatus, setImportStatus] = useState<{
     type: "success" | "error" | "warning"
     msg: string
     details?: string[]
   } | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
-
   const [adminFilter, setAdminFilter] = useState<'all' | 'noCost' | 'noPrice'>('all');
 
-  // Optimización: useEffect para manejar la tecla ESC
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isModalOpen) {
@@ -695,8 +715,8 @@ export default function HardwareApp() {
         const mappedProducts: Product[] = response.data.map((item) => ({
           id: item.id,
           name: item.name,
-          cost: item.cost,
-          price: item.price,
+          cost: Number(item.cost) || 0,
+          price: Number(item.price) || 0,
           category: "",
           stock: 0,
           supplier: "",
@@ -725,7 +745,10 @@ export default function HardwareApp() {
   }
 
   const handleSaveProduct = async (data: { name: string; cost: number; price: number }) => {
-    if (data.name && !isNaN(data.cost) && !isNaN(data.price) && data.cost >= 0 && data.price >= 0) {
+    const safeCost = Number(data.cost);
+    const safePrice = Number(data.price);
+
+    if (data.name && !isNaN(safeCost) && !isNaN(safePrice) && safeCost >= 0 && safePrice >= 0) {
       setIsLoading(true)
       setError(null)
       try {
@@ -733,14 +756,14 @@ export default function HardwareApp() {
           // Update existing product
           const response = await updateArticulo(editingProduct.id, {
             name: data.name,
-            cost: data.cost,
-            price: data.price,
+            cost: safeCost,
+            price: safePrice,
           })
 
           if (response.success) {
             setProducts((prev) =>
               prev.map((p) =>
-                p.id === editingProduct.id ? { ...editingProduct, name: data.name, cost: data.cost, price: data.price } : p,
+                p.id === editingProduct.id ? { ...editingProduct, name: data.name, cost: safeCost, price: safePrice } : p,
               ),
             )
             setEditingProduct(null)
@@ -752,8 +775,8 @@ export default function HardwareApp() {
           // Create new product
           const response = await createArticulo({
             name: data.name,
-            cost: data.cost,
-            price: data.price,
+            cost: safeCost,
+            price: safePrice,
           })
 
           if (response.success && response.data) {
@@ -805,17 +828,27 @@ export default function HardwareApp() {
     }
   }
 
-  const handleExportData = () => {
+const handleExportData = () => {
     if (products.length === 0) {
       alert("No hay productos para exportar")
       return
     }
 
-    const data = products.map((product) => ({
-      Nombre: product.name,
-      "Costo del Producto": product.cost,
-      "Precio de Venta": product.price,
-    }))
+    const data = products.map((product) => {
+      // Calculamos el margen numérico: 1 - (Costo/Precio)
+      let margin = 0
+      if (product.price > 0 && product.cost > 0) {
+         margin = (1 - (product.cost / product.price)) * 100
+      }
+
+      return {
+        Nombre: product.name,
+        "Costo del Producto": product.cost,
+        "Precio de Venta": product.price,
+        // Usamos Number() para asegurar que Excel lo detecte como número y no texto
+        "Utilidad (%)": Number(margin.toFixed(2)), 
+      }
+    })
 
     const worksheet = XLSX.utils.json_to_sheet(data)
     const workbook = XLSX.utils.book_new()
@@ -825,6 +858,7 @@ export default function HardwareApp() {
       { wch: 40 }, 
       { wch: 20 }, 
       { wch: 20 }, 
+      { wch: 15 },
     ]
 
     XLSX.writeFile(workbook, `Inventario_Ferreteria_${new Date().toISOString().split("T")[0]}.xlsx`)
@@ -913,7 +947,6 @@ export default function HardwareApp() {
       const newProducts: Product[] = []
 
       const existingProductNames = new Set(products.map((p) => p.name.toLowerCase().trim()))
-
       const firstRowKeys = Object.keys(jsonData[0])
 
       const findColumn = (keywords: string[]): string | undefined => {
@@ -972,10 +1005,10 @@ export default function HardwareApp() {
               id: response.data.id,
               name: response.data.name,
               cost: response.data.cost,
-              stock: 0,
               price: response.data.price,
-              category: undefined,
-              supplier: undefined,
+              category: "",
+              stock: 0,
+              supplier: "",
               lastUpdate: new Date().toLocaleDateString("es-ES"),
             })
             existingProductNames.add(normalizedName)
@@ -1072,7 +1105,6 @@ export default function HardwareApp() {
                     color: role === "admin" ? "#facc15" : "#60a5fa",
                   }}
                 >
-                  {/* Changed label from Empleado to Asesor */}
                   {role === "admin" ? "Admin" : "Asesor"}
                 </span>
               </div>
@@ -1101,7 +1133,6 @@ export default function HardwareApp() {
         </div>
       </nav>
 
-      {/* --- Main Content --- */}
       <main className="pt-32 pb-12 px-6 max-w-7xl mx-auto relative z-10">
         {error && (
           <div
@@ -1135,7 +1166,6 @@ export default function HardwareApp() {
             }}
             delay={0}
           />
-          {/* Only show these stats for Admin */}
           {role === "admin" && (
             <>
               <StatCard
@@ -1157,8 +1187,9 @@ export default function HardwareApp() {
                     (p) => p.price > 0 && p.cost > 0 && !isNaN(p.price) && !isNaN(p.cost),
                   )
                   if (validProducts.length === 0) return "0%"
+                  // Fórmula Ajustada: 1 - (Costo / Precio)
                   const avgMargin =
-                    validProducts.reduce((acc, p) => acc + ((p.price - p.cost) / p.price) * 100, 0) / validProducts.length
+                    validProducts.reduce((acc, p) => acc + (1 - (p.cost / p.price)) * 100, 0) / validProducts.length
                   return `${avgMargin.toFixed(0)}%`
                 })()}
                 icon={TrendingUp}
@@ -1185,7 +1216,6 @@ export default function HardwareApp() {
 
           {role === "admin" && (
             <div className="flex flex-wrap gap-4 items-center">
-              {/* Filtros de admin */}
               <div className="flex gap-2 mr-4">
                 <button
                   className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all duration-200 ${adminFilter === 'all' ? 'bg-yellow-500/20 border-yellow-400 text-yellow-300' : 'bg-slate-800 border-slate-700 text-slate-400'}`}
@@ -1239,8 +1269,8 @@ export default function HardwareApp() {
                 onClick={handleDownloadTemplate}
                 className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(234, 179, 8, 0.1)",
+                  border: "1px solid rgba(234, 179, 8, 0.4)",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "rgba(234, 179, 8, 0.1)"
@@ -1312,8 +1342,7 @@ export default function HardwareApp() {
                   <th className="p-6">Producto</th>
                   {role === "admin" && <th className="p-6 text-right">Costo</th>}
                   <th className="p-6 text-right">Precio Venta</th>
-                  {/* Only show Margin column header for Admin */}
-                  {role === "admin" && <th className="p-6 text-right">Margen</th>}
+                  {role === "admin" && <th className="p-6 text-right">Margen (%)</th>}
                   {role === "admin" && <th className="p-6 text-right">Acciones</th>}
                 </tr>
               </thead>
@@ -1398,7 +1427,7 @@ export default function HardwareApp() {
                         </span>
                       </td>
                       
-                      {/* Only show Margin value for Admin */}
+                      {/* Margen (Validación Costo > 0 para evitar 100%) */}
                       {role === "admin" && (
                         <td className="p-6 text-right">
                           {product.price > 0 && product.cost > 0 ? (
@@ -1406,18 +1435,18 @@ export default function HardwareApp() {
                               className="inline-block px-3 py-1.5 rounded-lg font-bold text-sm"
                               style={{
                                 background:
-                                  ((product.price - product.cost) / product.price) * 100 >= 30
+                                  (1 - (product.cost / product.price)) * 100 >= 30
                                     ? "rgba(16, 185, 129, 0.1)"
                                     : "rgba(234, 179, 8, 0.1)",
                                 border:
-                                  ((product.price - product.cost) / product.price) * 100 >= 30
+                                  (1 - (product.cost / product.price)) * 100 >= 30
                                     ? "1px solid rgba(16, 185, 129, 0.3)"
                                     : "1px solid rgba(234, 179, 8, 0.3)",
                                 color:
-                                  ((product.price - product.cost) / product.price) * 100 >= 30 ? "#34d399" : "#facc15",
+                                  (1 - (product.cost / product.price)) * 100 >= 30 ? "#34d399" : "#facc15",
                               }}
                             >
-                              {(((product.price - product.cost) / product.price) * 100).toFixed(1)}%
+                              {((1 - (product.cost / product.price)) * 100).toFixed(1)}%
                             </span>
                           ) : (
                             <span className="text-slate-600">0%</span>
@@ -1467,15 +1496,7 @@ export default function HardwareApp() {
         </GlassCard>
       </main>
 
-      {/* Modals */}
-      <ProductModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveProduct}
-        initialData={editingProduct}
-        isLoading={isLoading}
-      />
-
+      {/* Import Modal */}
       {isImportModalOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
@@ -1499,7 +1520,6 @@ export default function HardwareApp() {
             </div>
 
             <div className="space-y-6">
-              {/* Upload Area */}
               <div
                 className="border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center text-center relative cursor-pointer group transition-all duration-400"
                 style={{
@@ -1543,7 +1563,6 @@ export default function HardwareApp() {
                 <p className="text-slate-500 text-sm">Soporta .xlsx y .csv</p>
               </div>
 
-              {/* Status */}
               {importStatus && (
                 <div
                   className="p-5 rounded-xl flex items-start gap-3 animate-fade-up"
@@ -1603,6 +1622,15 @@ export default function HardwareApp() {
           </GlassCard>
         </div>
       )}
+
+      {/* Main Modal */}
+      <ProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveProduct}
+        initialData={editingProduct}
+        isLoading={isLoading}
+      />
     </div>
   )
 }
