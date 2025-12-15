@@ -21,12 +21,26 @@ import {
   X,
   Sparkles,
   TrendingUp,
+  ClipboardList,
+  MessageSquarePlus,
+  ArrowLeft,
 } from "lucide-react"
 
-import * as XLSX from "xlsx"
-
 // Asegúrate de que esta ruta sea correcta en tu proyecto
-import { getArticulos, createArticulo, updateArticulo, deleteArticulo } from "./actions/productos"
+import {
+  getArticulos,
+  createArticulo,
+  updateArticulo,
+  deleteArticulo,
+} from "./actions/productos"
+import {
+  getReportes,
+  createReporte,
+  deleteReporte,
+  updateReporteStatus,
+  type Reporte,
+} from "./actions/reportes"
+import * as XLSX from "xlsx"
 
 // --- COMPONENTS VISUALES ---
 
@@ -325,7 +339,7 @@ const LoginScreen = ({ onLogin }: { onLogin: (role: "admin" | "employee") => voi
                 </div>
                 <div className="ml-4 text-left flex-1">
                   <h3 className="text-white font-bold text-lg">Asesor</h3>
-                  <p className="text-sm text-slate-400">Consulta de precios y stock</p>
+                  <p className="text-sm text-slate-400">Acceso al panel de asesores</p>
                 </div>
                 <div className="opacity-0 group-hover:opacity-100 transition-all duration-400 text-yellow-400 translate-x-[-8px] group-hover:translate-x-0">
                   →
@@ -672,13 +686,515 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, isLoading }: Produ
   )
 }
 
+// --- REPORTS MODAL (ADMIN) ---
+const ReportsModal = ({
+  isOpen,
+  onClose,
+  reports,
+  onDelete,
+  isLoading,
+}: {
+  isOpen: boolean
+  onClose: () => void
+  reports: Reporte[]
+  onDelete: (id: string) => void
+  isLoading: boolean
+}) => {
+  const [tab, setTab] = useState<"pending" | "history">("pending")
+  if (!isOpen) return null
+
+  const pendingReports = reports.filter((r) => r.status !== "resolved")
+  const resolvedReports = reports.filter((r) => r.status === "resolved")
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{
+        background: "rgba(0,0,0,0.8)",
+        backdropFilter: "blur(5px)",
+      }}
+    >
+      <GlassCard className="w-full max-w-5xl p-8 animate-scale-in h-[80vh] flex flex-col">
+        <div className="flex items-start justify-between gap-6 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-red-500/20 border border-red-500/30">
+              <ClipboardList size={24} className="text-red-400" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Reportes de Agotados</h2>
+              <p className="text-slate-400 text-sm">Pendientes e historial</p>
+            </div>
+          </div>
+
+          <button onClick={onClose} className="p-2 rounded-lg text-slate-400 transition-colors hover:text-white">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-center gap-2 mb-6">
+          <button
+            type="button"
+            onClick={() => setTab("pending")}
+            className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+              tab === "pending"
+                ? "bg-red-500/20 border-red-500/40 text-red-200"
+                : "bg-slate-900/40 border-slate-700/50 text-slate-400 hover:text-white"
+            }`}
+          >
+            Pendientes ({pendingReports.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("history")}
+            className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+              tab === "history"
+                ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-200"
+                : "bg-slate-900/40 border-slate-700/50 text-slate-400 hover:text-white"
+            }`}
+          >
+            Historial ({resolvedReports.length})
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-64">
+              <Loader2 size={48} className="text-yellow-500 animate-spin mb-4" />
+              <p className="text-slate-400">Cargando reportes...</p>
+            </div>
+          ) : tab === "pending" ? (
+            pendingReports.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-64 text-slate-500">
+                <ClipboardList size={64} className="opacity-20 mb-4" />
+                <p className="text-lg font-medium">No hay reportes pendientes</p>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {pendingReports.map((report) => (
+                  <div
+                    key={report.id}
+                    className="p-4 rounded-xl border border-slate-700/50 bg-slate-800/30 flex items-start justify-between gap-4 group hover:border-slate-600 transition-all"
+                  >
+                    <div>
+                      <div className="flex items-center gap-3 mb-1 flex-wrap">
+                        <h3 className="text-lg font-bold text-white">{report.productName}</h3>
+                        <span
+                          className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
+                            report.priority === "agotado"
+                              ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                              : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                          }`}
+                        >
+                          {report.priority === "agotado" ? "Agotado" : "Casi Agotado"}
+                        </span>
+                      </div>
+                      {report.note && (
+                        <p className="text-slate-400 text-sm mb-2 bg-slate-900/50 p-2 rounded-lg inline-block">
+                          Nota: {report.note}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-3 text-xs text-slate-500">
+                        <span>📅 {new Date(report.createdAt).toLocaleDateString()}</span>
+                        <span>👤 {report.createdBy}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => onDelete(report.id)}
+                        className="p-2 rounded-lg text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all"
+                        title="Aceptar (pasar a historial)"
+                      >
+                        <CheckCircle size={20} />
+                      </button>
+                      <button
+                        onClick={() => onDelete(report.id)}
+                        className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          ) : resolvedReports.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-slate-500">
+              <CheckCircle size={64} className="opacity-20 mb-4" />
+              <p className="text-lg font-medium">Aún no hay reportes aceptados</p>
+              <p className="text-sm">Cuando aceptes un reporte, aparecerá aquí para seguimiento.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {resolvedReports.map((report) => (
+                <div
+                  key={report.id}
+                  className="p-4 rounded-xl border border-slate-700/50 bg-slate-900/30 flex items-start justify-between gap-4 group hover:border-slate-600 transition-all"
+                >
+                  <div>
+                    <div className="flex items-center gap-3 mb-1 flex-wrap">
+                      <h3 className="text-lg font-bold text-white">{report.productName}</h3>
+                      <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                        Aceptado
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
+                          report.priority === "agotado"
+                            ? "bg-red-500/15 text-red-300 border border-red-500/20"
+                            : "bg-yellow-500/15 text-yellow-300 border border-yellow-500/20"
+                        }`}
+                      >
+                        {report.priority === "agotado" ? "Agotado" : "Casi Agotado"}
+                      </span>
+                    </div>
+
+                    {report.note && (
+                      <p className="text-slate-400 text-sm mb-2 bg-slate-900/50 p-2 rounded-lg inline-block">
+                        Nota: {report.note}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <span>📝 Reportado: {new Date(report.createdAt).toLocaleDateString()}</span>
+                      {report.resolvedAt && <span>✅ Aceptado: {new Date(report.resolvedAt).toLocaleDateString()}</span>}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => onDelete(report.id)}
+                      className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                      title="Eliminar del historial"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </GlassCard>
+    </div>
+  )
+}
+
+// --- ADVISOR MENU COMPONENT ---
+const AdvisorMenu = ({
+  onSelect,
+  onLogout,
+}: {
+  onSelect: (view: "prices" | "reports") => void
+  onLogout: () => void
+}) => (
+  <div className="min-h-screen flex items-center justify-center p-6 font-sans relative z-10">
+    <div className="w-full max-w-4xl">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-extrabold text-white mb-2">Panel de Asesor</h1>
+        <p className="text-slate-400">Seleccione una operación</p>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <button
+          onClick={() => onSelect("prices")}
+          className="group relative overflow-hidden rounded-3xl p-8 text-left transition-all duration-500 hover:-translate-y-2"
+          style={{
+            background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)",
+            border: "1px solid rgba(59, 130, 246, 0.3)",
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          <div className="absolute inset-0 bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="relative z-10">
+            <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+              <Search size={32} className="text-blue-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">Consulta de Precios</h3>
+            <p className="text-slate-400">Buscar productos, verificar precios y disponibilidad en inventario.</p>
+          </div>
+        </button>
+
+        <button
+          onClick={() => onSelect("reports")}
+          className="group relative overflow-hidden rounded-3xl p-8 text-left transition-all duration-500 hover:-translate-y-2"
+          style={{
+            background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          <div className="absolute inset-0 bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="relative z-10">
+            <div className="w-16 h-16 rounded-2xl bg-red-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+              <ClipboardList size={32} className="text-red-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">Reportar Agotados</h3>
+            <p className="text-slate-400">Notificar a administración sobre productos agotados o próximos a agotarse.</p>
+          </div>
+        </button>
+      </div>
+
+      <div className="mt-12 text-center">
+        <button
+          onClick={onLogout}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+        >
+          <LogOut size={20} />
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
+    </div>
+  </div>
+)
+
+// --- ADVISOR REPORT FORM ---
+const AdvisorReportForm = ({
+  onBack,
+  onSubmit,
+  isLoading,
+  products,
+  existingReports,
+}: {
+  onBack: () => void
+  onSubmit: (data: { productName: string; note: string; priority: "agotado" | "casi_agotado" }) => void
+  isLoading: boolean
+  products: Product[]
+  existingReports: Reporte[]
+}) => {
+  const [productName, setProductName] = useState("")
+  const [note, setNote] = useState("")
+  const [priority, setPriority] = useState<"agotado" | "casi_agotado">("agotado")
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [suggestions, setSuggestions] = useState<Product[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!productName.trim()) return
+    
+    await onSubmit({ productName, note, priority })
+    setProductName("")
+    setNote("")
+    setPriority("agotado")
+    setShowSuccess(true)
+    setTimeout(() => setShowSuccess(false), 3000)
+  }
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setProductName(value)
+    
+    if (value.length > 0) {
+      const filtered = products.filter(p => 
+        p.name.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 5)
+      setSuggestions(filtered)
+      setShowSuggestions(true)
+    } else {
+      setSuggestions([])
+      setShowSuggestions(false)
+    }
+  }
+
+  const selectSuggestion = (name: string) => {
+    setProductName(name)
+    setShowSuggestions(false)
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 font-sans relative z-10">
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Form Section */}
+        <div>
+          <button
+            onClick={onBack}
+            className="mb-6 flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft size={20} />
+            Volver al menú
+          </button>
+
+          <GlassCard className="p-8">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="p-4 rounded-xl bg-red-500/20 border border-red-500/30">
+                <MessageSquarePlus size={32} className="text-red-400" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Reportar Agotado</h1>
+                <p className="text-slate-400 text-sm">Ayúdanos a mantener el inventario al día</p>
+              </div>
+            </div>
+
+            {showSuccess && (
+              <div className="mb-6 p-4 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center gap-3 text-green-400 animate-fade-up">
+                <CheckCircle size={20} />
+                <span>¡Reporte enviado exitosamente!</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="relative">
+                <label className="block text-sm font-bold text-slate-400 mb-2">
+                  Nombre del Producto <span className="text-red-400">*</span>
+                </label>
+                <GlassInput
+                  autoFocus
+                  required
+                  placeholder="Ej: Cemento Gris Argos"
+                  value={productName}
+                  onChange={handleNameChange}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  autoComplete="off"
+                />
+                
+                {/* Suggestions Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 rounded-xl overflow-hidden border border-slate-700 bg-slate-900/95 backdrop-blur-xl shadow-2xl animate-fade-up">
+                    {suggestions.map((product) => (
+                      <button
+                        key={product.id}
+                        type="button"
+                        onClick={() => selectSuggestion(product.name)}
+                        className="w-full text-left px-4 py-3 text-slate-300 hover:bg-blue-500/20 hover:text-white transition-colors border-b border-slate-800 last:border-0 flex justify-between items-center group"
+                      >
+                        <span className="font-medium group-hover:text-yellow-400 transition-colors">{product.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-400 mb-2">
+                  Prioridad <span className="text-red-400">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setPriority("agotado")}
+                    className={`p-4 rounded-xl border transition-all duration-300 flex flex-col items-center gap-2 ${
+                      priority === "agotado"
+                        ? "bg-red-500/20 border-red-500 text-white"
+                        : "bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800"
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full ${priority === "agotado" ? "bg-red-500" : "bg-slate-600"}`} />
+                    <span className="font-bold">Agotado</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPriority("casi_agotado")}
+                    className={`p-4 rounded-xl border transition-all duration-300 flex flex-col items-center gap-2 ${
+                      priority === "casi_agotado"
+                        ? "bg-yellow-500/20 border-yellow-500 text-white"
+                        : "bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-800"
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full ${priority === "casi_agotado" ? "bg-yellow-500" : "bg-slate-600"}`} />
+                    <span className="font-bold">Casi Agotado</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-slate-400 mb-2">
+                  Nota Adicional (Opcional)
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Detalles adicionales..."
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors resize-none"
+                />
+              </div>
+
+              <GradientButton
+                type="submit"
+                className="w-full"
+                variant="danger"
+                disabled={isLoading || !productName.trim()}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  "Enviar Reporte"
+                )}
+              </GradientButton>
+            </form>
+          </GlassCard>
+        </div>
+
+        {/* Existing Reports Panel */}
+        <div className="h-full">
+          <div className="mb-6 h-[52px]" /> {/* Spacer to align with back button */}
+          <GlassCard className="p-8 h-[calc(100%-76px)] flex flex-col">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 rounded-xl bg-blue-500/20 border border-blue-500/30">
+                <ClipboardList size={24} className="text-blue-400" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white">Reportes Activos</h2>
+                <p className="text-slate-400 text-sm">Verifica si ya fue reportado</p>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
+              {existingReports.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
+                  <ClipboardList size={48} className="mb-3" />
+                  <p>No hay reportes activos</p>
+                </div>
+              ) : (
+                existingReports.map((report) => (
+                  <div
+                    key={report.id}
+                    className="p-4 rounded-xl border border-slate-700/50 bg-slate-800/30 hover:bg-slate-800/50 transition-all"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-bold text-white text-sm">{report.productName}</h3>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                          report.priority === "agotado"
+                            ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                            : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                        }`}
+                      >
+                        {report.priority === "agotado" ? "Agotado" : "Casi Agotado"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span>{new Date(report.createdAt).toLocaleDateString()}</span>
+                      <span>{report.createdBy}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </GlassCard>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // --- MAIN APPLICATION ---
 export default function HardwareApp() {
   const [role, setRole] = useState<"admin" | "employee" | null>(null)
+  const [advisorView, setAdvisorView] = useState<"menu" | "prices" | "reports">("menu")
   const [products, setProducts] = useState<Product[]>([])
+  const [reports, setReports] = useState<Reporte[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const [isReportsModalOpen, setIsReportsModalOpen] = useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [productToDelete, setProductToDelete] = useState<string | null>(null)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -692,19 +1208,25 @@ export default function HardwareApp() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isModalOpen) {
-        setIsModalOpen(false)
+      if (e.key === "Escape") {
+        if (isModalOpen) setIsModalOpen(false)
+        if (isReportsModalOpen) setIsReportsModalOpen(false)
+        if (isDeleteConfirmOpen) setIsDeleteConfirmOpen(false)
       }
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [isModalOpen])
+  }, [isModalOpen, isReportsModalOpen, isDeleteConfirmOpen])
 
   useEffect(() => {
-    if (role) {
+    if (role === "admin") {
+      loadProducts()
+      loadReports()
+    } else if (role === "employee") {
+      // Load products for both prices and reports view to enable autocomplete
       loadProducts()
     }
-  }, [role])
+  }, [role, advisorView])
 
   const loadProducts = async () => {
     setIsLoading(true)
@@ -734,14 +1256,71 @@ export default function HardwareApp() {
     }
   }
 
+  const loadReports = async () => {
+    try {
+      const response = await getReportes()
+      if (response.success && response.data) {
+        setReports(response.data)
+      }
+    } catch (err) {
+      console.error("Error loading reports:", err)
+    }
+  }
+
   const handleLogin = (selectedRole: "admin" | "employee") => {
     setRole(selectedRole)
+    if (selectedRole === "employee") {
+      setAdvisorView("menu")
+    }
   }
 
   const handleLogout = () => {
     setRole(null)
     setSearchTerm("")
     setProducts([])
+    setAdvisorView("menu")
+  }
+
+  const handleCreateReport = async (data: { productName: string; note: string; priority: "agotado" | "casi_agotado" }) => {
+    setIsLoading(true)
+    try {
+      const response = await createReporte(data)
+      if (!response.success) {
+        setError(response.error || "Error al crear reporte")
+      } else {
+        // Refresh reports list for advisor view
+        loadReports()
+      }
+    } catch (err) {
+      setError("Error al enviar reporte")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDeleteReport = async (id: string) => {
+    try {
+      const response = await deleteReporte(id)
+      if (response.success) {
+        setReports(reports.filter((r) => r.id !== id))
+      }
+    } catch (err) {
+      console.error("Error deleting report:", err)
+    }
+  }
+
+  const handleResolveReport = async (id: string) => {
+    setIsLoading(true)
+    try {
+      const response = await updateReporteStatus(id, "resolved")
+      if (response.success) {
+        await loadReports()
+      }
+    } catch (err) {
+      console.error("Error resolving report:", err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleSaveProduct = async (data: { name: string; cost: number; price: number }) => {
@@ -809,14 +1388,23 @@ export default function HardwareApp() {
     }
   }
 
-  const handleDeleteProduct = async (id: string) => {
+  const handleDeleteProduct = (id: string) => {
+    setProductToDelete(id)
+    setIsDeleteConfirmOpen(true)
+  }
+
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete) return
+
     setIsLoading(true)
     setError(null)
     try {
-      const response = await deleteArticulo(id)
+      const response = await deleteArticulo(productToDelete)
 
       if (response.success) {
-        setProducts(products.filter((p) => p.id !== id))
+        setProducts(products.filter((p) => p.id !== productToDelete))
+        setIsDeleteConfirmOpen(false)
+        setProductToDelete(null)
       } else {
         setError(response.error || "Error al eliminar producto")
       }
@@ -828,7 +1416,7 @@ export default function HardwareApp() {
     }
   }
 
-const handleExportData = () => {
+  const handleExportData = () => {
     if (products.length === 0) {
       alert("No hay productos para exportar")
       return
@@ -1058,6 +1646,30 @@ const handleExportData = () => {
     return <LoginScreen onLogin={handleLogin} />
   }
 
+  if (role === "employee" && advisorView === "menu") {
+    return (
+      <div className="min-h-screen font-sans text-slate-200" style={{ background: "#0f172a" }}>
+        <AnimatedBackground />
+        <AdvisorMenu onSelect={setAdvisorView} onLogout={handleLogout} />
+      </div>
+    )
+  }
+
+  if (role === "employee" && advisorView === "reports") {
+    return (
+      <div className="min-h-screen font-sans text-slate-200" style={{ background: "#0f172a" }}>
+        <AnimatedBackground />
+        <AdvisorReportForm
+          onBack={() => setAdvisorView("menu")}
+          onSubmit={handleCreateReport}
+          isLoading={isLoading}
+          products={products}
+          existingReports={reports}
+        />
+      </div>
+    )
+  }
+
   // Filtro avanzado para admin
   let filteredProducts = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
   if (role === 'admin') {
@@ -1080,6 +1692,14 @@ const handleExportData = () => {
           <GlassCard className="!rounded-2xl">
             <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between py-3">
               <div className="flex items-center gap-4">
+                {role === "employee" && (
+                  <button 
+                    onClick={() => setAdvisorView("menu")}
+                    className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                )}
                 <div
                   className="p-2.5 rounded-xl relative overflow-hidden"
                   style={{
@@ -1241,6 +1861,34 @@ const handleExportData = () => {
               </div>
 
               <button
+                onClick={() => setIsReportsModalOpen(true)}
+                className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group relative"
+                style={{
+                  background: "rgba(239, 68, 68, 0.1)",
+                  border: "1px solid rgba(239, 68, 68, 0.4)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(239, 68, 68, 0.2)"
+                  e.currentTarget.style.transform = "translateY(-2px)"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"
+                  e.currentTarget.style.transform = "translateY(0)"
+                }}
+              >
+                <ClipboardList
+                  size={20}
+                  className="mr-2 text-red-400 group-hover:scale-110 transition-transform duration-400"
+                />
+                Reportes
+                {reports.length > 0 && (
+                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold border-2 border-[#0f172a]">
+                    {reports.length}
+                  </span>
+                )}
+              </button>
+
+              <button
                 onClick={() => setIsImportModalOpen(true)}
                 className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group"
                 style={{
@@ -1249,7 +1897,7 @@ const handleExportData = () => {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)"
-                  e.currentTarget.style.borderColor = "rgba(16, 185, 129, 0.4)"
+                                   e.currentTarget.style.borderColor = "rgba(16, 185, 129, 0.4)"
                   e.currentTarget.style.transform = "translateY(-2px)"
                 }}
                 onMouseLeave={(e) => {
@@ -1266,7 +1914,14 @@ const handleExportData = () => {
               </button>
 
               <button
-                onClick={handleDownloadTemplate}
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = '/plantilla_productos.xlsx';
+                  link.download = 'plantilla_productos.xlsx';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
                 className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group"
                 style={{
                   background: "rgba(234, 179, 8, 0.1)",
@@ -1441,7 +2096,7 @@ const handleExportData = () => {
                                 border:
                                   (1 - (product.cost / product.price)) * 100 >= 30
                                     ? "1px solid rgba(16, 185, 129, 0.3)"
-                                    : "1px solid rgba(234, 179, 8, 0.3)",
+                                    : "1px solid rgba(234,179,8,0.3)",
                                 color:
                                   (1 - (product.cost / product.price)) * 100 >= 30 ? "#34d399" : "#facc15",
                               }}
@@ -1631,6 +2286,73 @@ const handleExportData = () => {
         initialData={editingProduct}
         isLoading={isLoading}
       />
+
+      {/* Reports Modal */}
+      <ReportsModal
+        isOpen={isReportsModalOpen}
+        onClose={() => setIsReportsModalOpen(false)}
+        reports={reports}
+        onDelete={handleDeleteReport}
+        isLoading={isLoading}
+      />
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteConfirmOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          style={{
+            background: "rgba(0,0,0,0.8)",
+            backdropFilter: "blur(5px)",
+          }}
+        >
+          <GlassCard className="w-full max-w-md p-6 animate-scale-in">
+            <div className="flex flex-col items-center text-center">
+              <div 
+                className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+                style={{ background: "rgba(239, 68, 68, 0.1)" }}
+              >
+                <AlertCircle size={32} className="text-red-500" />
+              </div>
+              
+              <h3 className="text-xl font-bold text-white mb-2">¿Eliminar producto?</h3>
+              <p className="text-slate-400 mb-6">
+                Esta acción no se puede deshacer. El producto será eliminado permanentemente del inventario.
+              </p>
+
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => {
+                    setIsDeleteConfirmOpen(false)
+                    setProductToDelete(null)
+                  }}
+                  className="flex-1 py-3 rounded-xl font-medium text-slate-300 hover:text-white transition-colors"
+                  style={{ background: "rgba(255, 255, 255, 0.05)" }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteProduct}
+                  disabled={isLoading}
+                  className="flex-1 py-3 rounded-xl font-bold text-white transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                  style={{ 
+                    background: "linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)",
+                    boxShadow: "0 4px 12px rgba(239, 68, 68, 0.3)"
+                  }}
+                >
+                  {isLoading ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <>
+                      <Trash2 size={18} />
+                      Eliminar
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+      )}
     </div>
   )
 }
