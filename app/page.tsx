@@ -692,29 +692,46 @@ const ReportsModal = ({
   onClose,
   reports,
   onDelete,
+  onResolve,
   isLoading,
 }: {
   isOpen: boolean
   onClose: () => void
   reports: Reporte[]
   onDelete: (id: string) => void
+  onResolve: (id: string) => void
   isLoading: boolean
 }) => {
   const [tab, setTab] = useState<"pending" | "history">("pending")
   if (!isOpen) return null
 
-  const pendingReports = reports.filter((r) => r.status !== "resolved")
-  const resolvedReports = reports.filter((r) => r.status === "resolved")
+  const pendingReports = reports
+    .filter((r) => r.status !== "resolved")
+    .sort((a, b) => {
+      const prA = a.priority === "agotado" ? 0 : 1
+      const prB = b.priority === "agotado" ? 0 : 1
+      if (prA !== prB) return prA - prB
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    })
+
+  const resolvedReports = reports
+    .filter((r) => r.status === "resolved")
+    .sort((a, b) => {
+      const prA = a.priority === "agotado" ? 0 : 1
+      const prB = b.priority === "agotado" ? 0 : 1
+      if (prA !== prB) return prA - prB
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    })
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto"
       style={{
         background: "rgba(0,0,0,0.8)",
         backdropFilter: "blur(5px)",
       }}
     >
-      <GlassCard className="w-full max-w-5xl p-8 animate-scale-in h-[80vh] flex flex-col">
+      <GlassCard className="w-full max-w-5xl p-8 animate-scale-in h-[80vh] flex flex-col min-h-0">
         <div className="flex items-start justify-between gap-6 mb-6">
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-red-500/20 border border-red-500/30">
@@ -757,7 +774,7 @@ const ReportsModal = ({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar overscroll-contain">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center h-64">
               <Loader2 size={48} className="text-yellow-500 animate-spin mb-4" />
@@ -802,7 +819,7 @@ const ReportsModal = ({
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => onDelete(report.id)}
+                        onClick={() => onResolve(report.id)}
                         className="p-2 rounded-lg text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all"
                         title="Aceptar (pasar a historial)"
                       >
@@ -1816,8 +1833,8 @@ export default function HardwareApp() {
                 gradient={{
                   bg: "#eab308", // Yellow
                   text: "#facc15",
-                  border: "rgba(234, 179, 8, 0.3)",
-                  iconBg: "rgba(234, 179, 8, 0.1)",
+                  border: "rgba(234,179,8,0.3)",
+                  iconBg: "rgba(234,179,8,0.1)",
                 }}
                 delay={200}
               />
@@ -2293,6 +2310,7 @@ export default function HardwareApp() {
         onClose={() => setIsReportsModalOpen(false)}
         reports={reports}
         onDelete={handleDeleteReport}
+        onResolve={handleResolveReport}
         isLoading={isLoading}
       />
 
