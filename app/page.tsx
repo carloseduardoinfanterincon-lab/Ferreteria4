@@ -102,7 +102,7 @@ const GlassCard = ({
     }}
     {...props}
   >
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent" />
+    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent pointer-events-none" />
     <div className="relative z-10">{children}</div>
   </div>
 )
@@ -687,23 +687,22 @@ const ProductModal = ({ isOpen, onClose, onSave, initialData, isLoading }: Produ
 }
 
 // --- REPORTS MODAL (ADMIN) ---
-const ReportsModal = ({
-  isOpen,
-  onClose,
+// Nota: se mantiene por compatibilidad, pero ahora usamos una vista dedicada para evitar problemas de scroll en modales.
+
+const AdminReportsScreen = ({
   reports,
+  onBack,
   onDelete,
   onResolve,
   isLoading,
 }: {
-  isOpen: boolean
-  onClose: () => void
   reports: Reporte[]
+  onBack: () => void
   onDelete: (id: string) => void
   onResolve: (id: string) => void
   isLoading: boolean
 }) => {
   const [tab, setTab] = useState<"pending" | "history">("pending")
-  if (!isOpen) return null
 
   const pendingReports = reports
     .filter((r) => r.status !== "resolved")
@@ -724,111 +723,177 @@ const ReportsModal = ({
     })
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto"
-      style={{
-        background: "rgba(0,0,0,0.8)",
-        backdropFilter: "blur(5px)",
-      }}
-    >
-      <GlassCard className="w-full max-w-5xl p-8 animate-scale-in h-[80vh] flex flex-col min-h-0">
-        <div className="flex items-start justify-between gap-6 mb-6">
+    <div className="min-h-screen font-sans text-slate-200" style={{ background: "#0f172a" }}>
+      <AnimatedBackground />
+
+      <div className="relative z-10 pt-8 pb-16 px-6 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+          >
+            <ArrowLeft size={18} />
+            Volver
+          </button>
+
           <div className="flex items-center gap-3">
             <div className="p-3 rounded-xl bg-red-500/20 border border-red-500/30">
-              <ClipboardList size={24} className="text-red-400" />
+              <ClipboardList size={22} className="text-red-400" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">Reportes de Agotados</h2>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">Reportes de Agotados</h1>
               <p className="text-slate-400 text-sm">Pendientes e historial</p>
             </div>
           </div>
 
-          <button onClick={onClose} className="p-2 rounded-lg text-slate-400 transition-colors hover:text-white">
-            <X size={20} />
-          </button>
+          <div className="w-[88px]" />
         </div>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-2 mb-6">
-          <button
-            type="button"
-            onClick={() => setTab("pending")}
-            className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
-              tab === "pending"
-                ? "bg-red-500/20 border-red-500/40 text-red-200"
-                : "bg-slate-900/40 border-slate-700/50 text-slate-400 hover:text-white"
-            }`}
-          >
-            Pendientes ({pendingReports.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("history")}
-            className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
-              tab === "history"
-                ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-200"
-                : "bg-slate-900/40 border-slate-700/50 text-slate-400 hover:text-white"
-            }`}
-          >
-            Historial ({resolvedReports.length})
-          </button>
-        </div>
+        {/*
+          Vista sin limitaciones de alto: dejamos que la página haga scroll.
+          (Antes: h-[calc(100vh-150px)] + overflow interno)
+        */}
+        <GlassCard className="p-6 sm:p-8">
+          {/* Tabs */}
+          <div className="flex items-center gap-2 mb-6">
+            <button
+              type="button"
+              onClick={() => setTab("pending")}
+              className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                tab === "pending"
+                  ? "bg-red-500/20 border-red-500/40 text-red-200"
+                  : "bg-slate-900/40 border-slate-700/50 text-slate-400 hover:text-white"
+              }`}
+            >
+              Pendientes ({pendingReports.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("history")}
+              className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                tab === "history"
+                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-200"
+                  : "bg-slate-900/40 border-slate-700/50 text-slate-400 hover:text-white"
+              }`}
+            >
+              Historial ({resolvedReports.length})
+            </button>
+          </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar overscroll-contain">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center h-64">
-              <Loader2 size={48} className="text-yellow-500 animate-spin mb-4" />
-              <p className="text-slate-400">Cargando reportes...</p>
-            </div>
-          ) : tab === "pending" ? (
-            pendingReports.length === 0 ? (
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center h-64">
+                <Loader2 size={48} className="text-yellow-500 animate-spin mb-4" />
+                <p className="text-slate-400">Cargando reportes...</p>
+              </div>
+            ) : tab === "pending" ? (
+              pendingReports.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-slate-500">
+                  <ClipboardList size={64} className="opacity-20 mb-4" />
+                  <p className="text-lg font-medium">No hay reportes pendientes</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {pendingReports.map((report) => (
+                    <div
+                      key={report.id}
+                      className="p-4 rounded-xl border border-slate-700/50 bg-slate-800/30 flex items-start justify-between gap-4 group hover:border-slate-600 transition-all"
+                    >
+                      <div>
+                        <div className="flex items-center gap-3 mb-1 flex-wrap">
+                          <h3 className="text-lg font-bold text-white">{report.productName}</h3>
+                          <span
+                            className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
+                              report.priority === "agotado"
+                                ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                                : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                            }`}
+                          >
+                            {report.priority === "agotado" ? "Agotado" : "Casi Agotado"}
+                          </span>
+                        </div>
+                        {report.note && (
+                          <p className="text-slate-400 text-sm mb-2 bg-slate-900/50 p-2 rounded-lg inline-block">
+                            Nota: {report.note}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-3 text-xs text-slate-500">
+                          <span>📅 {new Date(report.createdAt).toLocaleDateString()}</span>
+                          <span>👤 {report.createdBy}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => onResolve(report.id)}
+                          className="p-2 rounded-lg text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all"
+                          title="Aceptar (pasar a historial)"
+                          type="button"
+                        >
+                          <CheckCircle size={20} />
+                        </button>
+                        <button
+                          onClick={() => onDelete(report.id)}
+                          className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                          title="Eliminar"
+                          type="button"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            ) : resolvedReports.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-                <ClipboardList size={64} className="opacity-20 mb-4" />
-                <p className="text-lg font-medium">No hay reportes pendientes</p>
+                <CheckCircle size={64} className="opacity-20 mb-4" />
+                <p className="text-lg font-medium">Aún no hay reportes aceptados</p>
+                <p className="text-sm">Cuando aceptes un reporte, aparecerá aquí para seguimiento.</p>
               </div>
             ) : (
               <div className="grid gap-4">
-                {pendingReports.map((report) => (
+                {resolvedReports.map((report) => (
                   <div
                     key={report.id}
-                    className="p-4 rounded-xl border border-slate-700/50 bg-slate-800/30 flex items-start justify-between gap-4 group hover:border-slate-600 transition-all"
+                    className="p-4 rounded-xl border border-slate-700/50 bg-slate-900/30 flex items-start justify-between gap-4 group hover:border-slate-600 transition-all"
                   >
                     <div>
                       <div className="flex items-center gap-3 mb-1 flex-wrap">
                         <h3 className="text-lg font-bold text-white">{report.productName}</h3>
+                        <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                          Aceptado
+                        </span>
                         <span
                           className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
                             report.priority === "agotado"
-                              ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                              : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                              ? "bg-red-500/15 text-red-300 border border-red-500/20"
+                              : "bg-yellow-500/15 text-yellow-300 border border-yellow-500/20"
                           }`}
                         >
                           {report.priority === "agotado" ? "Agotado" : "Casi Agotado"}
                         </span>
                       </div>
+
                       {report.note && (
                         <p className="text-slate-400 text-sm mb-2 bg-slate-900/50 p-2 rounded-lg inline-block">
                           Nota: {report.note}
                         </p>
                       )}
+
                       <div className="flex items-center gap-3 text-xs text-slate-500">
-                        <span>📅 {new Date(report.createdAt).toLocaleDateString()}</span>
-                        <span>👤 {report.createdBy}</span>
+                        <span>📝 Reportado: {new Date(report.createdAt).toLocaleDateString()}</span>
+                        {report.resolvedAt && <span>✅ Aceptado: {new Date(report.resolvedAt).toLocaleDateString()}</span>}
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => onResolve(report.id)}
-                        className="p-2 rounded-lg text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all"
-                        title="Aceptar (pasar a historial)"
-                      >
-                        <CheckCircle size={20} />
-                      </button>
-                      <button
                         onClick={() => onDelete(report.id)}
                         className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                        title="Eliminar"
+                        title="Eliminar del historial"
+                        type="button"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -836,64 +901,10 @@ const ReportsModal = ({
                   </div>
                 ))}
               </div>
-            )
-          ) : resolvedReports.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-              <CheckCircle size={64} className="opacity-20 mb-4" />
-              <p className="text-lg font-medium">Aún no hay reportes aceptados</p>
-              <p className="text-sm">Cuando aceptes un reporte, aparecerá aquí para seguimiento.</p>
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {resolvedReports.map((report) => (
-                <div
-                  key={report.id}
-                  className="p-4 rounded-xl border border-slate-700/50 bg-slate-900/30 flex items-start justify-between gap-4 group hover:border-slate-600 transition-all"
-                >
-                  <div>
-                    <div className="flex items-center gap-3 mb-1 flex-wrap">
-                      <h3 className="text-lg font-bold text-white">{report.productName}</h3>
-                      <span className="px-2 py-0.5 rounded text-xs font-bold uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
-                        Aceptado
-                      </span>
-                      <span
-                        className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
-                          report.priority === "agotado"
-                            ? "bg-red-500/15 text-red-300 border border-red-500/20"
-                            : "bg-yellow-500/15 text-yellow-300 border border-yellow-500/20"
-                        }`}
-                      >
-                        {report.priority === "agotado" ? "Agotado" : "Casi Agotado"}
-                      </span>
-                    </div>
-
-                    {report.note && (
-                      <p className="text-slate-400 text-sm mb-2 bg-slate-900/50 p-2 rounded-lg inline-block">
-                        Nota: {report.note}
-                      </p>
-                    )}
-
-                    <div className="flex items-center gap-3 text-xs text-slate-500">
-                      <span>📝 Reportado: {new Date(report.createdAt).toLocaleDateString()}</span>
-                      {report.resolvedAt && <span>✅ Aceptado: {new Date(report.resolvedAt).toLocaleDateString()}</span>}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => onDelete(report.id)}
-                      className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                      title="Eliminar del historial"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </GlassCard>
+            )}
+          </div>
+        </GlassCard>
+      </div>
     </div>
   )
 }
@@ -1150,7 +1161,7 @@ const AdvisorReportForm = ({
         {/* Existing Reports Panel */}
         <div className="h-full">
           <div className="mb-6 h-[52px]" /> {/* Spacer to align with back button */}
-          <GlassCard className="p-8 h-[calc(100%-76px)] flex flex-col">
+          <GlassCard className="p-8 h-[calc(100%-76px)] flex flex-col min-h-0">
             <div className="flex items-center gap-4 mb-6">
               <div className="p-3 rounded-xl bg-blue-500/20 border border-blue-500/30">
                 <ClipboardList size={24} className="text-blue-400" />
@@ -1161,7 +1172,10 @@ const AdvisorReportForm = ({
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
+            <div
+              className="flex-1 min-h-0 overflow-y-auto pr-2 space-y-3 overscroll-contain"
+              style={{ WebkitOverflowScrolling: "touch" }}
+            >
               {existingReports.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 opacity-50">
                   <ClipboardList size={48} className="mb-3" />
@@ -1222,6 +1236,7 @@ export default function HardwareApp() {
   } | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [adminFilter, setAdminFilter] = useState<'all' | 'noCost' | 'noPrice'>('all');
+  const [adminView, setAdminView] = useState<"inventory" | "reports">("inventory")
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1681,9 +1696,21 @@ export default function HardwareApp() {
           onSubmit={handleCreateReport}
           isLoading={isLoading}
           products={products}
-          existingReports={reports}
+          existingReports={reports.filter((r) => r.status !== "resolved")}
         />
       </div>
+    )
+  }
+
+  if (role === "admin" && adminView === "reports") {
+    return (
+      <AdminReportsScreen
+        reports={reports}
+        isLoading={isLoading}
+        onDelete={handleDeleteReport}
+        onResolve={handleResolveReport}
+        onBack={() => setAdminView("inventory")}
+      />
     )
   }
 
@@ -1698,10 +1725,7 @@ export default function HardwareApp() {
   }
 
   return (
-    <div
-      className="min-h-screen font-sans text-slate-200"
-      style={{ background: "#0f172a" }}
-    >
+    <div className="min-h-screen font-sans text-slate-200" style={{ background: "#0f172a" }}>
       <AnimatedBackground />
 
       <nav className="fixed top-0 left-0 right-0 z-50">
@@ -1772,6 +1796,7 @@ export default function HardwareApp() {
 
       <main className="pt-32 pb-12 px-6 max-w-7xl mx-auto relative z-10">
         {error && (
+         
           <div
             className="mb-6 p-4 rounded-xl flex items-center gap-3 animate-fade-up"
             style={{
@@ -1878,7 +1903,7 @@ export default function HardwareApp() {
               </div>
 
               <button
-                onClick={() => setIsReportsModalOpen(true)}
+                onClick={() => setAdminView("reports")}
                 className="flex items-center px-5 py-3.5 rounded-xl text-white font-medium transition-all duration-400 group relative"
                 style={{
                   background: "rgba(239, 68, 68, 0.1)",
@@ -1892,11 +1917,9 @@ export default function HardwareApp() {
                   e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"
                   e.currentTarget.style.transform = "translateY(0)"
                 }}
+                type="button"
               >
-                <ClipboardList
-                  size={20}
-                  className="mr-2 text-red-400 group-hover:scale-110 transition-transform duration-400"
-                />
+                <ClipboardList size={20} className="mr-2 text-red-400 group-hover:scale-110 transition-transform duration-400" />
                 Reportes
                 {reports.length > 0 && (
                   <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold border-2 border-[#0f172a]">
@@ -1922,6 +1945,7 @@ export default function HardwareApp() {
                   e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
                   e.currentTarget.style.transform = "translateY(0)"
                 }}
+                type="button"
               >
                 <FileSpreadsheet
                   size={20}
@@ -1954,6 +1978,7 @@ export default function HardwareApp() {
                   e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
                   e.currentTarget.style.transform = "translateY(0)"
                 }}
+                type="button"
               >
                 <FileSpreadsheet
                   size={20}
@@ -1979,6 +2004,7 @@ export default function HardwareApp() {
                   e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
                   e.currentTarget.style.transform = "translateY(0)"
                 }}
+                type="button"
               >
                 <Download
                   size={20}
@@ -2301,16 +2327,6 @@ export default function HardwareApp() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveProduct}
         initialData={editingProduct}
-        isLoading={isLoading}
-      />
-
-      {/* Reports Modal */}
-      <ReportsModal
-        isOpen={isReportsModalOpen}
-        onClose={() => setIsReportsModalOpen(false)}
-        reports={reports}
-        onDelete={handleDeleteReport}
-        onResolve={handleResolveReport}
         isLoading={isLoading}
       />
 
